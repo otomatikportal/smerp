@@ -1,8 +1,8 @@
 from django.db import models
-from django.forms import CharField
 from simple_history.models import HistoricalRecords
 from core.fields import CurrencyField, UOMField
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from datetime import datetime
 from safedelete.models import SafeDeleteModel
 from safedelete.config import SOFT_DELETE, SOFT_DELETE_CASCADE
@@ -19,7 +19,7 @@ class MaterialDemand(SafeDeleteModel):
     
     demand_no = models.CharField(_('Talep No'), max_length=50, blank=True, null=True, unique=True)
     material = models.ForeignKey("core.Material", related_name='demands' ,on_delete=models.PROTECT, null=False, blank=False, verbose_name=_('Malzeme'))
-    quantity = models.DecimalField(_('Miktar'), max_digits=12, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0.00)])
+    quantity = models.DecimalField(_('Miktar'), max_digits=12, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
     uom = UOMField()
     deadline = models.DateField(_('Son Tarih'), auto_now=False, auto_now_add=False)
     description = models.TextField(_('Açıklama'), max_length=500)
@@ -43,34 +43,34 @@ class MaterialDemand(SafeDeleteModel):
 class ProcurementOrder(SafeDeleteModel):
     _safedelete_policy = SOFT_DELETE_CASCADE
     PAYMENT_TERMS = [
-        ("NET_T", "Net T"),
-        ("DUE_ON_RECEIPT", "Due on Receipt"),
-        ("CIA", "Cash in Advance"),
-        ("CWO", "Cash with Order"),
-        ("COD", "Cash on Delivery"),
-        ("CAD", "Cash Against Documents"),
-        ("EOM", "End of Month"),
-        ("T_EOM", "T Days End of Month"),
-        ("PROX", "Proximo"),
-        ("PARTIAL_ADVANCE", "Partial Payment in Advance"),
-        ("LC", "Letter of Credit"),
-        ("DC", "Documentary Collection"),
-        ("X_Y_NET_T", "X/Y Net T"),
-        ("TRADE_DISCOUNT", "Trade Discount"),
+        ("NET_T", "Net Vade"),
+        ("DUE_ON_RECEIPT", "Teslimde Ödeme"),
+        ("CIA", "Peşin Ödeme"),
+        ("CWO", "Siparişle Birlikte Ödeme"),
+        ("COD", "Teslimde Nakit"),
+        ("CAD", "Belge Karşılığı Ödeme"),
+        ("EOM", "Ay Sonu"),
+        ("T_EOM", "Ay sonundan T gün sonra"),
+        ("PROX", "Proksimo"),
+        ("PARTIAL_ADVANCE", "Kısmi Peşin Ödeme"),
+        ("LC", "Akreditif"),
+        ("DC", "Belge Tahsilatı"),
+        ("X_Y_NET_T", "X/Y Net Vade"),
+        ("TRADE_DISCOUNT", "Ticari İskonto"),
     ]
     
     INCOTERMS = [
-        ("EXW", "Ex Works"),
-        ("FCA", "Free Carrier"),
-        ("FAS", "Free Alongside Ship"),
-        ("FOB", "Free On Board"),
-        ("CFR", "Cost and Freight"),
-        ("CIF", "Cost, Insurance and Freight"),
-        ("CPT", "Carriage Paid To"),
-        ("CIP", "Carriage and Insurance Paid To"),
-        ("DAP", "Delivered At Place"),
-        ("DPU", "Delivered at Place Unloaded"),
-        ("DDP", "Delivered Duty Paid"),
+        ("EXW", "İşyerinde Teslim (EXW)"),
+        ("FCA", "Taşıyıcıya Teslim (FCA)"),
+        ("FAS", "Gemi Yanında Teslim (FAS)"),
+        ("FOB", "Gemiye Teslim (FOB)"),
+        ("CFR", "Navlun Dahil Teslim (CFR)"),
+        ("CIF", "Navlun ve Sigorta Dahil Teslim (CIF)"),
+        ("CPT", "Taşıma Ücreti Ödenmiş Teslim (CPT)"),
+        ("CIP", "Taşıma ve Sigorta Ücreti Ödenmiş Teslim (CIP)"),
+        ("DAP", "Varış Yerinde Teslim (DAP)"),
+        ("DPU", "Boşaltılmış Teslim (DPU)"),
+        ("DDP", "Gümrük Vergisi Ödenmiş Teslim (DDP)"),
     ]
     
     PAYMENT_METHODS = [
@@ -85,6 +85,7 @@ class ProcurementOrder(SafeDeleteModel):
     
     STATUS = [
         ('draft', 'Taslak'),
+        ('submitted', 'Sunuldu'),
         ('approved', 'Onaylandı'),
         ('rejected', 'Reddedildi'),
         ('ordered', 'Sipariş verildi'),
@@ -135,18 +136,46 @@ class ProcurementInvoice(SafeDeleteModel):
     po = models.ForeignKey("procurement.ProcurementOrder", related_name='invoices', on_delete=models.CASCADE, verbose_name=_('Satınalma Siparişi'))
     
 class ProcurementOrderLine(SafeDeleteModel):
+
     _safedelete_policy = SOFT_DELETE
     po = models.ForeignKey("procurement.ProcurementOrder", related_name='lines', on_delete=models.CASCADE, verbose_name=_('Satınalma Siparişi'))
     material = models.ForeignKey("core.Material", on_delete=models.CASCADE, null=False, blank=False, verbose_name=_('Malzeme'))
     uom = UOMField(null=False, blank=False)
-    quantity = models.DecimalField(_('Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0.00)])
-    quantity_received = models.DecimalField(_('Alınan Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0.00)])
-    unit_price = models.DecimalField(_('Birim Fiyat'), max_digits=32, decimal_places=2)
-    tax_rate = models.DecimalField(_('Vergi Oranı'), max_digits=4, decimal_places=3, default=Decimal("0.000"), validators=[MinValueValidator(0), MaxValueValidator(1)])
+    quantity = models.DecimalField(_('Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
+    quantity_received = models.DecimalField(_('Alınan Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])
+    unit_price = models.DecimalField(_('Birim Fiyat'), max_digits=32, decimal_places=2, null=True, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
+    tax_rate = models.DecimalField(_('Vergi Oranı'), max_digits=4, decimal_places=3, null=True, blank=False, default=Decimal("0.000"), validators=[MinValueValidator(0), MaxValueValidator(1)])
     history = HistoricalRecords()
+    
+    def clean(self):
+        integer_uoms = [
+            UOMField.Unit.PIECE,
+            UOMField.Unit.BOX,
+            UOMField.Unit.PALLET
+        ]
+        errors = {}
+        if self.uom in integer_uoms:
+            if self.quantity is not None and self.quantity % 1 != 0:
+                errors['quantity'] = 'Miktar tam sayı olmalıdır.'
+            if self.quantity_received is not None and self.quantity_received % 1 != 0:
+                errors['quantity_received'] = 'Miktar tam sayı olmalıdır.'
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def quantity_left(self):
         """Returns the quantity that is still to be received."""
         return self.quantity - self.quantity_received
-    
+
+    @property
+    def total_without_tax(self):
+        if self.unit_price is None or self.quantity is None:
+            return None
+        return self.unit_price * self.quantity
+
+    @property
+    def total_with_tax(self):
+        if self.unit_price is None or self.quantity is None or self.tax_rate is None:
+            return None
+        return (self.unit_price * self.quantity) * (1 + self.tax_rate)
+        
