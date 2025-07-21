@@ -2,12 +2,11 @@ from rest_framework import viewsets, status, filters, pagination
 from django.db import transaction
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from core.models import Material
-from core.serializers.material_serializers import MaterialSerializer
+from core.models import Contact
+from core.serializers.contact_serializers import ContactSerializer
 from rest_framework.views import exception_handler
-from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions
-
+from rest_framework.decorators import action
 
 
 class CustomPagination(pagination.PageNumberPagination):
@@ -18,7 +17,7 @@ class CustomPagination(pagination.PageNumberPagination):
     def get_paginated_response(self, data):
         return Response({
             "status": "success",
-            "message": "Materials retrieved successfully",
+            "message": "Contacts retrieved successfully",
             "count": self.page.paginator.count,
             "next": self.get_next_link(),
             "previous": self.get_previous_link(),
@@ -26,21 +25,21 @@ class CustomPagination(pagination.PageNumberPagination):
         })
 
 
-class MaterialViewSet(viewsets.ModelViewSet):
+class ContactViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for managing materials.
+    API endpoint for managing contacts.
 
     Filtering options:
-      - filterset_fields: category, internal_code, name
-      - search_fields: name, internal_code, description
-      - ordering_fields: id, name, category, internal_code
+      - filterset_fields: company, name, last_name, gender, role, e_mail, phone
+      - search_fields: name, last_name, e_mail, phone, description
+      - ordering_fields: id, name, last_name, company
     """
-    queryset = Material.objects.all().order_by('-id')
-    serializer_class = MaterialSerializer
+    queryset = Contact.objects.all().order_by('-id')
+    serializer_class = ContactSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'internal_code', 'name']
-    search_fields = ['name', 'internal_code', 'description']
-    ordering_fields = ['id', 'name', 'category', 'internal_code']
+    filterset_fields = ['company', 'name', 'last_name', 'gender', 'role', 'e_mail', 'phone']
+    search_fields = ['name', 'last_name', 'e_mail', 'phone', 'description']
+    ordering_fields = ['id', 'name', 'last_name', 'company']
     pagination_class = CustomPagination
     permission_classes = [DjangoModelPermissions]
 
@@ -49,11 +48,11 @@ class MaterialViewSet(viewsets.ModelViewSet):
             response = super().list(request, *args, **kwargs)
             if isinstance(response.data, dict) and "results" in response.data:
                 response.data["status"] = "success"
-                response.data["message"] = "Materials retrieved successfully"
+                response.data["message"] = "Contacts retrieved successfully"
                 return response
             return Response({
                 "status": "success",
-                "message": "Materials retrieved successfully",
+                "message": "Contacts retrieved successfully",
                 "results": response.data
             }, status=status.HTTP_200_OK)
         except Exception as exc:
@@ -65,7 +64,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             return Response({
                 "status": "success",
-                "message": "Material retrieved successfully",
+                "message": "Contact retrieved successfully",
                 "result": serializer.data
             }, status=status.HTTP_200_OK)
         except Exception as exc:
@@ -77,7 +76,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
             response = super().create(request, *args, **kwargs)
             return Response({
                 "status": "success",
-                "message": "Material created successfully",
+                "message": "Contact created successfully",
                 "result": response.data
             }, status=status.HTTP_201_CREATED)
         except Exception as exc:
@@ -89,7 +88,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
             response = super().partial_update(request, *args, **kwargs)
             return Response({
                 "status": "success",
-                "message": "Material updated successfully",
+                "message": "Contact updated successfully",
                 "result": response.data
             }, status=status.HTTP_200_OK)
         except Exception as exc:
@@ -103,7 +102,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
             serializer.delete(instance)
             return Response({
                 "status": "success",
-                "message": "Material deleted successfully"
+                "message": "Contact deleted successfully"
             }, status=status.HTTP_200_OK)
         except Exception as exc:
             return self.handle_exception(exc)
@@ -119,18 +118,6 @@ class MaterialViewSet(viewsets.ModelViewSet):
             "status": "error",
             "message": "DELETE method is not allowed for this resource. Use the custom 'delete' action instead."
         }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        
-    @action(detail=True, methods=['post'], url_path='recover')
-    @transaction.atomic
-    def recover(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # Example for a custom is_deleted flag:
-        instance.is_deleted = False
-        instance.save()
-        return Response({
-            "status": "success",
-            "message": "Material recovered successfully"
-        }, status=status.HTTP_200_OK)
 
     def handle_exception(self, exc):
         response = exception_handler(exc, self.get_exception_handler_context())
@@ -141,7 +128,6 @@ class MaterialViewSet(viewsets.ModelViewSet):
                 "details": response.data
             }
             return response
-        
         # Fallback 500 error
         return Response({
             "status": "error",

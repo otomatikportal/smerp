@@ -8,12 +8,12 @@ from safedelete.config import SOFT_DELETE
 
 
 class Company(models.Model):
-    name = models.CharField(max_length=50, blank=False, null=True)
-    legal_name = models.CharField(max_length=128, blank=False, null=True, unique=True)
-    e_mail = models.CharField(max_length=254, blank=False, null=True)
-    website = models.CharField(max_length=254, blank=False, null=True)
-    phone = models.CharField(max_length=12, blank=False, null=True)
-    description = models.TextField(max_length=500)
+    name = models.CharField(_('Ad'), max_length=50, blank=False, null=True)
+    legal_name = models.CharField(_('Ticari Unvan'), max_length=128, blank=False, null=True, unique=True)
+    e_mail = models.CharField(_('E-posta'), max_length=254, blank=False, null=True)
+    website = models.CharField(_('Web Sitesi'), max_length=254, blank=False, null=True)
+    phone = models.CharField(_('Telefon'), max_length=12, blank=False, null=True)
+    description = models.TextField(_('Açıklama'), max_length=500)
     history = HistoricalRecords()
     
 class Contact(models.Model):
@@ -25,14 +25,14 @@ class Contact(models.Model):
         ('procurement', 'Satın almacı')
     ]    
     
-    company = models.ForeignKey("core.Company", related_name='contacts', on_delete=models.SET_NULL, null=True, blank=False)
-    name = models.CharField(max_length=128, blank=False, null=True)
+    company = models.ForeignKey("core.Company", related_name='contacts', on_delete=models.SET_NULL, null=True, blank=False, verbose_name=_('Firma'))
+    name = models.CharField(_('Ad'), max_length=128, blank=False, null=True)
     gender = GenderField()
-    last_name = models.CharField(max_length=128, blank=False, null=True)
-    role = models.CharField(max_length=32, choices=ROLE_CHOICES, blank=False, null=True)
-    e_mail = models.CharField(max_length=254, blank=False, null=True)
-    phone = models.CharField(max_length=12, blank=False, null=True)
-    description = models.TextField(max_length=500)
+    last_name = models.CharField(_('Soyad'), max_length=128, blank=False, null=True)
+    role = models.CharField(_('Rol'), max_length=32, choices=ROLE_CHOICES, blank=False, null=True)
+    e_mail = models.CharField(_('E-posta'), max_length=254, blank=False, null=True)
+    phone = models.CharField(_('Telefon'), max_length=12, blank=False, null=True)
+    description = models.TextField(_('Açıklama'), max_length=500)
     history = HistoricalRecords()
     
 class Material(SafeDeleteModel):
@@ -46,10 +46,10 @@ class Material(SafeDeleteModel):
         ('pallet', 'palet'), #PLT-
         ('undefined', 'Belirtilmemiş') #UND-
     ]
-    name = models.CharField(max_length=128, blank=False, null=True)
-    category = models.CharField(max_length=32, choices=MATERIAL_CATEGORIES, blank=False, null=False, default='undefined')
-    internal_code = models.CharField(max_length=14, blank=True, null=True, unique=True)
-    description = models.TextField(max_length=500)
+    name = models.CharField(_('Ad'), max_length=128, blank=False, null=True)
+    category = models.CharField(_('Kategori'), max_length=32, choices=MATERIAL_CATEGORIES, blank=False, null=False, default='undefined')
+    internal_code = models.CharField(_('İç Kod'), max_length=14, blank=True, null=True, unique=True)
+    description = models.TextField(_('Açıklama'), max_length=500)
     history = HistoricalRecords()
 
     PREFIX_MAP = {

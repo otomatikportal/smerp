@@ -38,3 +38,10 @@ class MaterialSerializer(serializers.ModelSerializer):
             instance.description = validated_data['description']
         instance.save()
         return instance
+
+    def delete(self, instance):
+        """
+        Triggers the model's delete method, which should invoke the soft delete policy if using a soft delete library.
+        """
+        instance.delete()
+        return instance
