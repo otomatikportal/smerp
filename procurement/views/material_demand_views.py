@@ -8,6 +8,17 @@ from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
 
+class CustomDjangoModelPermissions(DjangoModelPermissions):
+    perms_map = {
+        'GET': ['%(app_label)s.view_%(model_name)s'],
+        'OPTIONS': [],
+        'HEAD': [],
+        'POST': ['%(app_label)s.add_%(model_name)s'],
+        'PUT': ['%(app_label)s.change_%(model_name)s'],
+        'PATCH': ['%(app_label)s.change_%(model_name)s'],
+        'DELETE': ['%(app_label)s.delete_%(model_name)s'],
+    }
+
 
 class CustomPagination(pagination.PageNumberPagination):
     page_size = 10
@@ -26,6 +37,7 @@ class CustomPagination(pagination.PageNumberPagination):
 
 
 class MaterialDemandViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
     """
     API endpoint for managing material demands.
 
@@ -41,7 +53,7 @@ class MaterialDemandViewSet(viewsets.ModelViewSet):
     search_fields = ['description', 'demand_no']
     ordering_fields = ['id', 'demand_no', 'deadline', 'status']
     pagination_class = CustomPagination
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [CustomDjangoModelPermissions]
 
     def list(self, request, *args, **kwargs):
         try:
@@ -94,6 +106,7 @@ class MaterialDemandViewSet(viewsets.ModelViewSet):
         except Exception as exc:
             return self.handle_exception(exc)
 
+    @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
         try:
@@ -113,11 +126,17 @@ class MaterialDemandViewSet(viewsets.ModelViewSet):
             "message": "PUT method is not allowed for this resource. Use PATCH instead."
         }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        return Response({
-            "status": "error",
-            "message": "DELETE method is not allowed for this resource. Use the custom 'delete' action instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        instance = self.get_object()
+        try:
+            instance.delete(force_policy=HARD_DELETE)
+            return Response({
+                "status": "success",
+                "message": "Material demand hard deleted successfully"
+            }, status=status.HTTP_200_OK)
+        except Exception as exc:
+            return self.handle_exception(exc)
 
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic

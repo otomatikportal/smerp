@@ -7,7 +7,7 @@ from core.serializers.material_serializers import MaterialSerializer
 from rest_framework.views import exception_handler
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions
-
+from safedelete.config import HARD_DELETE
 
 
 class CustomPagination(pagination.PageNumberPagination):
@@ -27,6 +27,7 @@ class CustomPagination(pagination.PageNumberPagination):
 
 
 class MaterialViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
     """
     API endpoint for managing materials.
 
@@ -95,6 +96,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
         except Exception as exc:
             return self.handle_exception(exc)
 
+    @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
         try:
@@ -113,12 +115,18 @@ class MaterialViewSet(viewsets.ModelViewSet):
             "status": "error",
             "message": "PUT method is not allowed for this resource. Use PATCH instead."
         }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
+    
+    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        return Response({
-            "status": "error",
-            "message": "DELETE method is not allowed for this resource. Use the custom 'delete' action instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        instance = self.get_object()
+        try:
+            instance.delete(force_policy=HARD_DELETE)
+            return Response({
+                "status": "success",
+                "message": "Material hard deleted successfully"
+            }, status=status.HTTP_200_OK)
+        except Exception as exc:
+            return self.handle_exception(exc)
         
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic

@@ -7,7 +7,8 @@ from safedelete.models import SafeDeleteModel
 from safedelete.config import SOFT_DELETE
 
 
-class Company(models.Model):
+class Company(SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
     name = models.CharField(_('Ad'), max_length=50, blank=False, null=True)
     legal_name = models.CharField(_('Ticari Unvan'), max_length=128, blank=False, null=True, unique=True)
     e_mail = models.CharField(_('E-posta'), max_length=254, blank=False, null=True)
@@ -16,8 +17,8 @@ class Company(models.Model):
     description = models.TextField(_('Açıklama'), max_length=500)
     history = HistoricalRecords()
     
-class Contact(models.Model):
-    
+class Contact(SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
     ROLE_CHOICES = [
         ('owner', 'Firma sahibi'),
         ('employee', 'Çalışan'),

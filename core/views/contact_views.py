@@ -7,7 +7,7 @@ from core.serializers.contact_serializers import ContactSerializer
 from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
-
+from safedelete.config import HARD_DELETE
 
 class CustomPagination(pagination.PageNumberPagination):
     page_size = 10
@@ -26,6 +26,7 @@ class CustomPagination(pagination.PageNumberPagination):
 
 
 class ContactViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
     """
     API endpoint for managing contacts.
 
@@ -94,6 +95,7 @@ class ContactViewSet(viewsets.ModelViewSet):
         except Exception as exc:
             return self.handle_exception(exc)
 
+    @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
         try:
@@ -106,6 +108,19 @@ class ContactViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_200_OK)
         except Exception as exc:
             return self.handle_exception(exc)
+        
+    @action(detail=True, methods=['post'], url_path='recover')
+    @transaction.atomic
+    def recover(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if hasattr(instance, 'undelete'):
+            instance.undelete()
+        else:
+            instance.save()
+        return Response({
+            "status": "success",
+            "message": "Contact recovered successfully"
+        }, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         return Response({
@@ -113,11 +128,17 @@ class ContactViewSet(viewsets.ModelViewSet):
             "message": "PUT method is not allowed for this resource. Use PATCH instead."
         }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        return Response({
-            "status": "error",
-            "message": "DELETE method is not allowed for this resource. Use the custom 'delete' action instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        instance = self.get_object()
+        try:
+            instance.delete(force_policy=HARD_DELETE)
+            return Response({
+                "status": "success",
+                "message": "Order hard deleted successfully"
+            }, status=status.HTTP_200_OK)
+        except Exception as exc:
+            return self.handle_exception(exc)
 
     def handle_exception(self, exc):
         response = exception_handler(exc, self.get_exception_handler_context())

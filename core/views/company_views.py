@@ -7,6 +7,7 @@ from core.serializers.company_serializers import CompanySerializer
 from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
+from safedelete.config import HARD_DELETE
 
 
 class CustomPagination(pagination.PageNumberPagination):
@@ -26,6 +27,7 @@ class CustomPagination(pagination.PageNumberPagination):
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
     """
     API endpoint for managing companies.
 
@@ -95,6 +97,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
         except Exception as exc:
             return self.handle_exception(exc)
 
+    @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
         try:
@@ -112,14 +115,9 @@ class CompanyViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Example for a custom is_deleted flag:
-        # instance.is_deleted = False
-        # instance.save()
-        # If using safedelete or similar, use undelete method:
         if hasattr(instance, 'undelete'):
             instance.undelete()
         else:
-            # fallback: just save (no-op if not soft deleted)
             instance.save()
         return Response({
             "status": "success",
@@ -132,11 +130,17 @@ class CompanyViewSet(viewsets.ModelViewSet):
             "message": "PUT method is not allowed for this resource. Use PATCH instead."
         }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        return Response({
-            "status": "error",
-            "message": "DELETE method is not allowed for this resource. Use the custom 'delete' action instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        instance = self.get_object()
+        try:
+            instance.delete(force_policy=HARD_DELETE)
+            return Response({
+                "status": "success",
+                "message": "Company hard deleted successfully"
+            }, status=status.HTTP_200_OK)
+        except Exception as exc:
+            return self.handle_exception(exc)
 
     def handle_exception(self, exc):
         response = exception_handler(exc, self.get_exception_handler_context())
