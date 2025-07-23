@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import DecimalField
 from simple_history.models import HistoricalRecords
 from core.fields import GenderField, CurrencyField, UOMField
 from django.utils.translation import gettext_lazy as _
@@ -11,15 +12,15 @@ class InventoryLocation(models.Model):
         ESENYURT   = "esenyurt", _("Esenyurt")
         
     class Type(models.TextChoices):
-        INDUSTRIAL_SHELF = "industrial_shelf", _("Raf")        
-        EXIT_TRANSIT = "exit_transit", _("Sevk transit")
-        INJECTION_TRANSIT = "injection_transit", _("Enjeksiyondan depoya")
+        INDUSTRIAL_SHELF =      "industrial_shelf", _("Raf")        
+        EXIT_TRANSIT =          "exit_transit", _("Sevk transit")
+        INJECTION_TRANSIT =     "injection_transit", _("Enjeksiyondan depoya")
         MANUFACTURING_TRANSIT = "manufacturing_transit", _("Montajdan depoya")
-        RESIN = "resin_storage", _("Plastik hammadde")
-        MASTERBATCH = "masterbatch", _("Masterbatch")
-        CHEMICAL = "chemical", _("Kimyasal")
-        UNLABELED = "unlabeled", _("Bildirilmemiş")
-        TEMP = "temporary", _("Geçici")
+        RESIN =                 "resin_storage", _("Plastik hammadde")
+        MASTERBATCH =           "masterbatch", _("Masterbatch")
+        CHEMICAL =              "chemical", _("Kimyasal")
+        UNLABELED =             "unlabeled", _("Bildirilmemiş")
+        TEMP =                  "temporary", _("Geçici")
 
     name =     models.CharField(_("İsim"), max_length=50, blank=True)
     facility = models.CharField(_("Tesis"), max_length=50, choices=Facility.choices, default=Facility.ESENYURT)
@@ -28,28 +29,27 @@ class InventoryLocation(models.Model):
     shelf =    models.IntegerField(_("Raf"), null=True, blank=False)
     bin =      models.IntegerField(_("Bölme"), null=True, blank=False)
     type =     models.CharField(_("Tipi"), max_length=50, choices=Type.choices, default=Type.UNLABELED)
-
+    width =    models.DecimalField(_("Genişliği (cm)"), max_digits=6, decimal_places=2, null=True, blank=False)
+    width =    models.DecimalField(_("Yüksekliği (cm)"), max_digits=6, decimal_places=2, null=True, blank=False)
+    
     def save(self, *args, **kwargs):
+        area_str = chr(65 + (self.area - 1)) if self.area is not None and self.area > 0 else "A"
+        section_str = str(self.section) if self.section is not None else "1"
+        base = f"{area_str}{section_str}"
         
-        if not self.name:
-            area_str = chr(65 + (self.area - 1)) if self.area is not None and self.area > 0 else "A"
-            section_str = str(self.section) if self.section is not None else "1"
-            base = f"{area_str}{section_str}"
+        if self.shelf == 0:
+            middle = "Z"
+        
+        else:
+            middle = f"R{self.shelf}"
+        
+        if self.bin is not None:
+            end = f"-P{self.bin}"
+        
+        else:
+            end = ""
             
-            if self.shelf == 0:
-                middle = "Z"
-            
-            else:
-                middle = f"R{self.shelf}"
-            
-            if self.bin is not None:
-                end = f"-P{self.bin}"
-            
-            else:
-                end = ""
-                
-            self.name = f"{base}-{middle}{end}"
-
+        self.name = f"{base}-{middle}{end}"
         super().save(*args, **kwargs)
     
     
