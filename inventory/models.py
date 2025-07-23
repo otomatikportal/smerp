@@ -1,10 +1,12 @@
 from django.db import models
-from django.forms import DecimalField
+from safedelete.models import SafeDeleteModel
+from safedelete.config import SOFT_DELETE
 from simple_history.models import HistoricalRecords
 from core.fields import GenderField, CurrencyField, UOMField
 from django.utils.translation import gettext_lazy as _
 
-class InventoryLocation(models.Model):
+class InventoryLocation(SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
     class Meta:
         unique_together = ("facility", "area", "section", "shelf", "bin")
 
@@ -53,9 +55,13 @@ class InventoryLocation(models.Model):
         super().save(*args, **kwargs)
     
     
-class Inventory(models.Model):
+class StockRecord(SafeDeleteModel):
+    _safedelete_policy = SOFT_DELETE
     material = models.ForeignKey("core.Material", verbose_name=_("Malzeme"), on_delete=models.PROTECT, null=False, blank=False)
     uom =      UOMField()
     quantity = models.DecimalField(_("Miktar"), max_digits=30, decimal_places=2, null=False, blank=False)
     location = models.ForeignKey("inventory.InventoryLocation", verbose_name=_("Konum"), on_delete=models.PROTECT)
     history =  HistoricalRecords()
+
+    class Meta:
+        unique_together = ("material", "uom", "location")
