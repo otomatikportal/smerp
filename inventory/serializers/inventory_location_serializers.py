@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from inventory.models import InventoryLocation
+from inventory.serializers.stock_record_serializers import StockRecordSerializer
 
 class InventoryLocationSerializer(serializers.ModelSerializer):
     created_at = serializers.SerializerMethodField(read_only=True)
@@ -41,24 +42,19 @@ class InventoryLocationSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         action = self.context.get('action')
         if action == 'retrieve':
-            contacts_qs = instance.contacts.all()
-            # ret['items'] = InventorySerializer(contacts_qs, many=True).data
-        else:
-            ret.pop('contacts', None)
+            stock_records = instance.stockrecord_set.all()
+            items_context = self.context.copy()
+            items_context['action'] = 'list'
+            ret['items'] = StockRecordSerializer(stock_records, many=True, context=items_context).data
+        elif action == 'list':
+            pass
         return ret
 
-    def partial_update(self, instance, validated_data):
+    def update(self, instance, validated_data):
         # Only allow updating name, facility, area, section, shelf, bin, type
         allowed_fields = ['name', 'facility', 'area', 'section', 'shelf', 'bin', 'type']
         for field in allowed_fields:
             if field in validated_data:
                 setattr(instance, field, validated_data[field])
         instance.save()
-        return instance
-
-    def delete(self, instance):
-        """
-        Triggers the model's delete method, which should invoke the soft delete policy if using a soft delete library.
-        """
-        instance.delete()
         return instance

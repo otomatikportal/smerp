@@ -4,3 +4,30 @@ from django.apps import AppConfig
 class InventoryConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'inventory'
+
+    def ready(self):
+        from django.db.models.signals import post_migrate
+        from django.contrib.auth.models import Group, Permission
+        from django.contrib.contenttypes.models import ContentType
+        from inventory.models import InventoryLocation
+
+        def create_default_groups(sender, **kwargs):
+            base_perms = [
+                'add_inventorylocation',
+                'change_inventorylocation',
+                'view_inventorylocation',
+            ]
+            groups_permissions = {
+                'Inventory Location Manager': base_perms,
+                'Inventory Location Observer': ['view_inventorylocation'],
+            }
+            ct = ContentType.objects.get_for_model(InventoryLocation)
+            for group_name, perms in groups_permissions.items():
+                group, _ = Group.objects.get_or_create(name=group_name)
+                for perm_codename in perms:
+                    perm = Permission.objects.filter(content_type=ct, codename=perm_codename).first()
+                    if perm:
+                        group.permissions.add(perm)
+            # Groups are additive: if a group exists, permissions are added, not overwritten
+
+        post_migrate.connect(create_default_groups, sender=self)
