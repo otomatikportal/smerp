@@ -110,13 +110,18 @@ class InventoryLocationViewSet(viewsets.ModelViewSet):
                     "result": serializer.data
                 }, status=status.HTTP_200_OK)
 
-            # If not found, proceed with normal creation
-            response = super().create(request, *args, **kwargs)
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            instance = serializer.save()
+            instance._change_reason = "Created via API"
+            instance.save()
+            
             return Response({
                 "status": "success",
                 "message": "Inventory location created successfully",
-                "result": response.data
+                "result": serializer.data
             }, status=status.HTTP_201_CREATED)
+            
         except Exception as exc:
             return self.handle_exception(exc)
 

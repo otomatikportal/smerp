@@ -26,6 +26,9 @@ class MaterialDemand(SafeDeleteModel):
     description = models.TextField(_('Açıklama'), max_length=500)
     status = models.CharField(_('Durum'), max_length=20, choices=STATUS, default="draft")
     history = HistoricalRecords()
+    
+    def __str__(self):
+        return str(self.demand_no)
 
     def save(self, *args, **kwargs):
         creating = self.pk is None
@@ -39,6 +42,8 @@ class MaterialDemand(SafeDeleteModel):
             zeros = '0' * max(0, zeros_len)
             self.demand_no = f"{prefix}{year}{zeros}{pk_str}"[:14]
             super().save(update_fields=["demand_no"])
+            
+
             
 
 class ProcurementOrder(SafeDeleteModel):
@@ -111,6 +116,9 @@ class ProcurementOrder(SafeDeleteModel):
     currency = CurrencyField(null=False, blank=False)
     delivery_address = models.CharField(_('Teslimat Adresi'), max_length=250, null=True, blank=False)
     history = HistoricalRecords()
+    
+    def __str__(self):
+        return str(self.po_number)
     
     def save(self, *args, **kwargs):
         creating = self.pk is None
@@ -210,7 +218,7 @@ class ProcurementOrderLine(SafeDeleteModel):
 
     _safedelete_policy = SOFT_DELETE
     po = models.ForeignKey("procurement.ProcurementOrder", related_name='lines', on_delete=models.CASCADE, verbose_name=_('Satınalma Siparişi'))
-    material = models.ForeignKey("core.Material", on_delete=models.CASCADE, null=False, blank=False, verbose_name=_('Malzeme'))
+    material = models.ForeignKey("core.Material", on_delete=models.PROTECT, null=False, blank=False, verbose_name=_('Malzeme'))
     uom = UOMField(null=False, blank=False)
     quantity = models.DecimalField(_('Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
     quantity_received = models.DecimalField(_('Alınan Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])

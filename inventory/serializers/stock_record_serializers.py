@@ -3,6 +3,7 @@ from inventory.models import StockRecord
 from core.serializers.material_serializers import MaterialSerializer
 
 class StockRecordSerializer(serializers.ModelSerializer):
+    change_reason = serializers.CharField(write_only=True, required=False)
     created_at = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.SerializerMethodField(read_only=True)
 
@@ -14,6 +15,7 @@ class StockRecordSerializer(serializers.ModelSerializer):
             'uom',
             'quantity',
             'location',
+            'change_reason',
             'created_by',
             'created_at',
         ]
@@ -54,11 +56,20 @@ class StockRecordSerializer(serializers.ModelSerializer):
                     'quantity': 'Miktar, Palet, Koli veya Adet birimleri için tam sayı olmalıdır.'
                 })
         return attrs
-
+    
+    def create(self, validated_data):
+        change_reason = validated_data.pop('change_reason', 'Neden belirtilmedi')
+        instance = self.Meta.model(**validated_data)
+        instance._change_reason = change_reason # type: ignore
+        instance.save()
+        return instance
+    
     def update(self, instance, validated_data):
         allowed_fields = ['material', 'uom', 'quantity', 'location']
         for field in allowed_fields:
             if field in validated_data:
                 setattr(instance, field, validated_data[field])
+        change_reason = validated_data.pop('change_reason', 'Neden belirtilmedi')
+        instance._change_reason = change_reason
         instance.save()
         return instance

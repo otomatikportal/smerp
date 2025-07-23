@@ -34,6 +34,7 @@ class InventoryLocation(SafeDeleteModel):
     width =    models.IntegerField(_("Genişliği (cm)"), null=True, blank=False)
     height =   models.IntegerField(_("Yüksekliği (cm)"), null=True, blank=False)
     depth =    models.IntegerField(_("Derinlik (cm)"), null=True, blank=False)
+    history = HistoricalRecords()
     
     def save(self, *args, **kwargs):
         # Only assign auto-generated name if all unique_together fields are present
@@ -53,11 +54,11 @@ class InventoryLocation(SafeDeleteModel):
     
 class StockRecord(SafeDeleteModel):
     _safedelete_policy = SOFT_DELETE
-    material = models.ForeignKey("core.Material", verbose_name=_("Malzeme"), on_delete=models.PROTECT, null=False, blank=False)
-    uom =      UOMField()
-    quantity = models.DecimalField(_("Miktar"), max_digits=30, decimal_places=2, null=False, blank=False)
-    location = models.ForeignKey("inventory.InventoryLocation", verbose_name=_("Konum"), on_delete=models.PROTECT)
-    history =  HistoricalRecords()
+    material =           models.ForeignKey("core.Material", verbose_name=_("Malzeme"), on_delete=models.PROTECT, null=False, blank=False)
+    uom =                UOMField()
+    quantity =           models.DecimalField(_("Miktar"), max_digits=30, decimal_places=2, null=False, blank=False)
+    location =           models.ForeignKey("inventory.InventoryLocation", verbose_name=_("Konum"), on_delete=models.PROTECT)
+    history =            HistoricalRecords()
 
     class Meta:
         unique_together = ("material", "uom", "location")

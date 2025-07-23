@@ -139,7 +139,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
                 if instance.status != 'draft':
                     errors['status'] = 'Geçerli durumda değil'
                     
-                required_fields = ['payment_term', 'payment_method', 'incoterms', 'description', 'currency', 'delivery_address']
+                required_fields = ['payment_term', 'vendor', 'payment_method', 'incoterms', 'description', 'currency', 'delivery_address']
                 for field in required_fields:
                     if not getattr(instance, field, None):
                         errors[field] = f"'{field}' alanı gereklidir."
@@ -258,7 +258,3 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
             return instance
         else:
             raise serializers.ValidationError({'status': f"Bilinmeyen durum: {status}"})
-
-    def delete(self, instance):
-        instance.delete()
-        return instance

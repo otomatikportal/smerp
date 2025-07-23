@@ -17,6 +17,9 @@ class Company(SafeDeleteModel):
     description = models.TextField(_('Açıklama'), max_length=500)
     history = HistoricalRecords()
     
+    def __str__(self):
+        return str(self.name)
+    
 class Contact(SafeDeleteModel):
     _safedelete_policy = SOFT_DELETE
     ROLE_CHOICES = [
@@ -52,6 +55,9 @@ class Material(SafeDeleteModel):
     internal_code = models.CharField(_('İç Kod'), max_length=14, blank=True, null=True, unique=True)
     description = models.TextField(_('Açıklama'), max_length=500)
     history = HistoricalRecords()
+    
+    def __str__(self):
+        return str(self.name)
 
     PREFIX_MAP = {
         'supplied': 'TED-',

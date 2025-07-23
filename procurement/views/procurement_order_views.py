@@ -107,9 +107,7 @@ class ProcurementOrderViewSet(viewsets.ModelViewSet):
     def delete(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            serializer = self.get_serializer()
-            # Soft delete (SafeDeleteModel)
-            serializer.delete(instance)
+            instance.delete()
             return Response({
                 "status": "success",
                 "message": "Order soft deleted successfully"

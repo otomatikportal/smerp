@@ -58,3 +58,4 @@ class InventoryLocationSerializer(serializers.ModelSerializer):
                 setattr(instance, field, validated_data[field])
         instance.save()
         return instance
+    
