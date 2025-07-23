@@ -57,6 +57,15 @@ This distinction is crucial as it allows partial updates to work correctly witho
 
 ---
 
-## Key Takeaways
-- The order of validation in serializers ensures that field-level validations are executed before object-level validations. 
-- `partial=True` in `partial_update` facilitates partial updates by bypassing field-level validation for missing fields and utilizing instance values for object-level validation.
+
+# Summary of Serializer Methods and Their Execution in DRF
+
+| **HTTP Method**      | **Action**         | **Serializer Method**         |
+|-----------------------|--------------------|--------------------------------|
+| **GET (list)**        | List              | `to_representation` (called for each object) |
+| **GET (retrieve)**    | Retrieve          | `to_representation`           |
+| **POST**              | Create            | `create`                      |
+| **PUT**               | Update (full)     | `update`                      |
+| **PATCH**             | Update (partial)  | `update` (with `partial=True`)|
+| **DELETE**            | Destroy           | None                          |
+| **OPTIONS**           | Metadata          | None                          |
