@@ -40,14 +40,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'created_by', 'created_at', 'total_price_without_tax', 'total_price_with_tax', 'all_received', 'last_payment_date', 'invoice_accepted'
         ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        instance = kwargs.get('instance', None)
-        data = kwargs.get('data', None)
-        print(f"DEBUG: Serializer __init__ called. Has instance: {instance is not None}, Has data: {data is not None}, Data: {data}")
         
-
     def get_lines(self, obj):
         qs = obj.lines.all()
         return ProcurementOrderLineSerializer(qs, many=True, context=self.context).data
