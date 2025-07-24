@@ -37,7 +37,6 @@ class IncomingItemsDetailSerializer(serializers.Serializer):
 class SimpleInventoryTransactionSerializer(serializers.Serializer):
     location = serializers.PrimaryKeyRelatedField(queryset=InventoryLocation.objects.all())
     quantity = serializers.DecimalField(max_digits=30, decimal_places=2, min_value=Decimal('0'))
-    uom = serializers.ChoiceField(choices=UOMField.Unit.choices)
     change_reason = serializers.CharField(max_length=100, required=False)
     source_id = serializers.PrimaryKeyRelatedField(queryset=ProcurementOrderLine.objects.all())
     
@@ -47,17 +46,10 @@ class SimpleInventoryTransactionSerializer(serializers.Serializer):
         return value
     
     def validate(self, data):
-
-        uom = data.get('uom')
-        quantity = data.get('quantity')
-        if uom and quantity is not None:
-            if uom in ["ADT", "PLT", "BOX"] and quantity % 1 != 0:
-                raise serializers.ValidationError({
-                    'quantity': _("UOM '{}' Tam sayı gerektirir.").format(uom)
-                })
         
         source_id = data['source_id']
         data['material'] = source_id.material
+        data['uom'] = source_id.uom
         return data
         
         
