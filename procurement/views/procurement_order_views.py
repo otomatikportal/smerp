@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import viewsets, status, filters, pagination
 from django.db import transaction
 from rest_framework.response import Response
@@ -224,3 +225,17 @@ class ProcurementOrderViewSet(viewsets.ModelViewSet):
             "message": "Internal server error",
             "details": str(exc)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+
+from django.utils.translation import gettext as _
+from django.utils import translation
+
+def test_view(request):
+    translation.activate('tr')
+    return JsonResponse({
+        'current_language': translation.get_language(),
+        'required_field': _('This field is required.'),
+        'invalid_pk': _('Invalid pk "{pk_value}" - object does not exist.'),
+        'does_not_exist_simple': _('Object does not exist.'),
+    })

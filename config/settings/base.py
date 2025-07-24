@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import os
 from pathlib import Path
+import django
+import rest_framework
 load_dotenv()
 
 """
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -110,10 +113,17 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'tr'
+
 TIME_ZONE = 'Europe/Istanbul'
+LANGUAGE_CODE = 'tr'  # Turkish
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),  # Your custom translations
+    os.path.join(os.path.dirname(django.__file__), 'conf', 'locale'),  # Django's translations
+    os.path.join(os.path.dirname(rest_framework.__file__), 'locale'),
+]
 
 
 # Static files (CSS, JavaScript, Images)

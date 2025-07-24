@@ -62,3 +62,7 @@ class StockRecord(SafeDeleteModel):
 
     class Meta:
         unique_together = ("material", "uom", "location")
+        
+        permissions = [
+            ("transact_stockrecord", "Enter/exit stock"),
+        ]

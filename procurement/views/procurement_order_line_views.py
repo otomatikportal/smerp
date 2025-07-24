@@ -8,6 +8,7 @@ from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.decorators import action
 from safedelete.config import HARD_DELETE
+from django.conf import settings
 
 class CustomDjangoModelPermissions(DjangoModelPermissions):
     perms_map = {
@@ -155,16 +156,26 @@ class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
 
     def handle_exception(self, exc):
+        # Get the default DRF response
         response = exception_handler(exc, self.get_exception_handler_context())
+        
         if response is not None:
+            # Preserve original error message for common cases
+            if hasattr(exc, 'detail'):
+                message = str(exc.detail)
+            else:
+                message = str(exc)
+                
             response.data = {
                 "status": "error",
-                "message": str(exc),
+                "message": message,  # More precise error message
                 "details": response.data
             }
             return response
+        
+        # Fallback for completely unhandled exceptions
         return Response({
-            "status": "error",
+            "status": "error", 
             "message": "Internal server error",
-            "details": str(exc)
+            "details": str(exc) if settings.DEBUG else "An unexpected error occurred"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

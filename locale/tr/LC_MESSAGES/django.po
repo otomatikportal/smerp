@@ -1,0 +1,321 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-24 10:16+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: .\core\fields.py:8
+msgid "Erkek"
+msgstr ""
+
+#: .\core\fields.py:9
+msgid "Kadın"
+msgstr ""
+
+#: .\core\fields.py:10
+msgid "Belirtilmedi"
+msgstr ""
+
+#: .\core\fields.py:16
+msgid "Cinsiyet"
+msgstr ""
+
+#: .\core\fields.py:22
+msgid "Türk Lirası"
+msgstr ""
+
+#: .\core\fields.py:23
+msgid "ABD Doları"
+msgstr ""
+
+#: .\core\fields.py:24
+msgid "Euro"
+msgstr ""
+
+#: .\core\fields.py:25
+msgid "İngiliz Sterlini"
+msgstr ""
+
+#: .\core\fields.py:26
+msgid "Japon Yeni"
+msgstr ""
+
+#: .\core\fields.py:27
+msgid "İsviçre Frangı"
+msgstr ""
+
+#: .\core\fields.py:28
+msgid "Rus Rublesi"
+msgstr ""
+
+#: .\core\fields.py:29
+msgid "Çin Yuanı"
+msgstr ""
+
+#: .\core\fields.py:30
+msgid "İsveç Kronu"
+msgstr ""
+
+#: .\core\fields.py:31
+msgid "Avustralya Doları"
+msgstr ""
+
+#: .\core\fields.py:41
+msgid "Adet"
+msgstr ""
+
+#: .\core\fields.py:42
+msgid "Kilogram"
+msgstr ""
+
+#: .\core\fields.py:43
+msgid "Gram"
+msgstr ""
+
+#: .\core\fields.py:44
+msgid "Litre"
+msgstr ""
+
+#: .\core\fields.py:45
+msgid "Mililitre"
+msgstr ""
+
+#: .\core\fields.py:46
+msgid "Metre"
+msgstr ""
+
+#: .\core\fields.py:47
+msgid "Koli"
+msgstr ""
+
+#: .\core\fields.py:48
+msgid "Palet"
+msgstr ""
+
+#: .\core\fields.py:55
+msgid "Birim"
+msgstr ""
+
+#: .\core\models.py:12 .\core\models.py:33 .\core\models.py:53
+msgid "Ad"
+msgstr ""
+
+#: .\core\models.py:13
+msgid "Ticari Unvan"
+msgstr ""
+
+#: .\core\models.py:14 .\core\models.py:37
+msgid "E-posta"
+msgstr ""
+
+#: .\core\models.py:15
+msgid "Web Sitesi"
+msgstr ""
+
+#: .\core\models.py:16 .\core\models.py:38
+msgid "Telefon"
+msgstr ""
+
+#: .\core\models.py:17 .\core\models.py:39 .\core\models.py:56
+#: .\procurement\models.py:26 .\procurement\models.py:114
+msgid "Açıklama"
+msgstr ""
+
+#: .\core\models.py:32
+msgid "Firma"
+msgstr ""
+
+#: .\core\models.py:35
+msgid "Soyad"
+msgstr ""
+
+#: .\core\models.py:36
+msgid "Rol"
+msgstr ""
+
+#: .\core\models.py:54
+msgid "Kategori"
+msgstr ""
+
+#: .\core\models.py:55
+msgid "İç Kod"
+msgstr ""
+
+#: .\inventory\models.py:14
+msgid "Esenyurt"
+msgstr ""
+
+#: .\inventory\models.py:17 .\inventory\models.py:31
+msgid "Raf"
+msgstr ""
+
+#: .\inventory\models.py:18
+msgid "Sevk transit"
+msgstr ""
+
+#: .\inventory\models.py:19
+msgid "Enjeksiyondan depoya"
+msgstr ""
+
+#: .\inventory\models.py:20
+msgid "Montajdan depoya"
+msgstr ""
+
+#: .\inventory\models.py:21
+msgid "Plastik hammadde"
+msgstr ""
+
+#: .\inventory\models.py:22
+msgid "Masterbatch"
+msgstr ""
+
+#: .\inventory\models.py:23
+msgid "Kimyasal"
+msgstr ""
+
+#: .\inventory\models.py:24
+msgid "Bildirilmemiş"
+msgstr ""
+
+#: .\inventory\models.py:25
+msgid "Geçici"
+msgstr ""
+
+#: .\inventory\models.py:27
+msgid "İsim"
+msgstr ""
+
+#: .\inventory\models.py:28
+msgid "Tesis"
+msgstr ""
+
+#: .\inventory\models.py:29
+msgid "Bölge"
+msgstr ""
+
+#: .\inventory\models.py:30
+msgid "Sıra"
+msgstr ""
+
+#: .\inventory\models.py:32
+msgid "Bölme"
+msgstr ""
+
+#: .\inventory\models.py:33
+msgid "Tipi"
+msgstr ""
+
+#: .\inventory\models.py:34
+msgid "Genişliği (cm)"
+msgstr ""
+
+#: .\inventory\models.py:35
+msgid "Yüksekliği (cm)"
+msgstr ""
+
+#: .\inventory\models.py:36
+msgid "Derinlik (cm)"
+msgstr ""
+
+#: .\inventory\models.py:57 .\procurement\models.py:22
+#: .\procurement\models.py:221
+msgid "Malzeme"
+msgstr ""
+
+#: .\inventory\models.py:59 .\procurement\models.py:23
+#: .\procurement\models.py:223
+msgid "Miktar"
+msgstr ""
+
+#: .\inventory\models.py:60
+msgid "Konum"
+msgstr ""
+
+#: .\procurement\models.py:21
+msgid "Talep No"
+msgstr ""
+
+#: .\procurement\models.py:25
+msgid "Son Tarih"
+msgstr ""
+
+#: .\procurement\models.py:27 .\procurement\models.py:115
+msgid "Durum"
+msgstr ""
+
+#: .\procurement\models.py:104
+msgid "PO #no"
+msgstr ""
+
+#: .\procurement\models.py:105
+msgid "Tedarikçi"
+msgstr ""
+
+#: .\procurement\models.py:106
+msgid "Ödeme Koşulları"
+msgstr ""
+
+#: .\procurement\models.py:107
+msgid "Ödeme Yöntemi"
+msgstr ""
+
+#: .\procurement\models.py:108
+msgid "Teslim Şekli (Incoterms)"
+msgstr ""
+
+#: .\procurement\models.py:109
+msgid "Ticari İskonto"
+msgstr ""
+
+#: .\procurement\models.py:110
+msgid "Vade Günü"
+msgstr ""
+
+#: .\procurement\models.py:111
+msgid "Vade İskontosu"
+msgstr ""
+
+#: .\procurement\models.py:112
+msgid "Vade İskonto Günü"
+msgstr ""
+
+#: .\procurement\models.py:113
+msgid "Fatura Tebliğ Tarihi"
+msgstr ""
+
+#: .\procurement\models.py:117
+msgid "Teslimat Adresi"
+msgstr ""
+
+#: .\procurement\models.py:214
+msgid "Fatura No"
+msgstr ""
+
+#: .\procurement\models.py:215 .\procurement\models.py:220
+msgid "Satınalma Siparişi"
+msgstr ""
+
+#: .\procurement\models.py:224
+msgid "Alınan Miktar"
+msgstr ""
+
+#: .\procurement\models.py:225
+msgid "Birim Fiyat"
+msgstr ""
+
+#: .\procurement\models.py:226
+msgid "Vergi Oranı"
+msgstr ""
