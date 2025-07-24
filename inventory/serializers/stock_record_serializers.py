@@ -1,6 +1,8 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from inventory.models import StockRecord
 from core.serializers.material_serializers import MaterialSerializer
+
 
 class StockRecordSerializer(serializers.ModelSerializer):
     change_reason = serializers.CharField(write_only=True, required=False)
@@ -53,7 +55,7 @@ class StockRecordSerializer(serializers.ModelSerializer):
         if uom in ['PLT', 'BOX', 'ADT']:
             if quantity is not None and quantity % 1 != 0:
                 raise serializers.ValidationError({
-                    'quantity': 'Miktar, Palet, Koli veya Adet birimleri için tam sayı olmalıdır.'
+                    'quantity': _('Miktar, Palet, Koli veya Adet birimleri için tam sayı olmalıdır.')
                 })
         return attrs
     

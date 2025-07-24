@@ -41,7 +41,7 @@ class StockRecordViewSet(viewsets.ModelViewSet):
     serializer_class = StockRecordSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['material', 'uom', 'location']
-    search_fields = ['material__name']
+    search_fields = ['material__name', 'material__description', 'material__internal_code']
     ordering_fields = ['id', 'material', 'uom', 'quantity', 'location']
     pagination_class = CustomPagination
     permission_classes = [CustomDjangoModelPermissions]
