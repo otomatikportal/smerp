@@ -3,7 +3,7 @@ from core.serializers.material_serializers import MaterialSerializer
 from procurement.models import ProcurementOrderLine, ProcurementOrder
 
 class ProcurementOrderLineSerializer(serializers.ModelSerializer):
-    po = serializers.PrimaryKeyRelatedField(queryset=ProcurementOrder.objects.all(), required=True)
+    po = serializers.PrimaryKeyRelatedField(queryset=ProcurementOrder.objects.all(), required=False)
     created_at = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.SerializerMethodField(read_only=True)
 

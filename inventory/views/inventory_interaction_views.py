@@ -11,6 +11,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, filters, pagination, serializers
 from rest_framework.views import exception_handler
 from inventory.serializers.stock_record_serializers import StockRecordSerializer
+from drf_spectacular.utils import extend_schema
+from drf_yasg.utils import swagger_auto_schema
 
 
 class HasStockRecordTransactPermission(BasePermission):
@@ -85,6 +87,11 @@ class InventoryIncomingViewset(ViewSet):
             "data": serializer.data
         })
         
+
+    @swagger_auto_schema(
+        request_body=SimpleInventoryTransactionSerializer,
+        responses={200: StockRecordSerializer}
+    )
     @transaction.atomic
     @permission_classes([HasStockRecordTransactPermission])
     @action(detail=False, methods=['put'], url_path='enter-inventory')
@@ -96,7 +103,7 @@ class InventoryIncomingViewset(ViewSet):
             data = serializer.validated_data
             
             # Handle procurement order line update
-            if 'source_id' in data:                        #type: ignore
+            if 'source_id' in data: #type: ignore
                 po_line = data['source_id']  #type: ignore
                 po_line.quantity_received += data['quantity']  #type: ignore
                 po_line.save()

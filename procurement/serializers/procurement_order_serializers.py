@@ -82,11 +82,10 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
 
         lines_data = validated_data.pop('lines', None)
         order = ProcurementOrder.objects.create(**validated_data)
-        print(lines_data)
+
 
         if lines_data:
             for line_data in lines_data:
-                print('debug execute')
                 line_data['po'] = order
                 ProcurementOrderLineSerializer().create(line_data)
         return order
