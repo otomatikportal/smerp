@@ -1,3 +1,4 @@
+from django.conf.global_settings import AUTH_USER_MODEL
 from dotenv import load_dotenv
 import os
 from pathlib import Path
@@ -108,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+AUTH_USER_MODEL = 'auth.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

@@ -1,6 +1,8 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from core.serializers.material_serializers import MaterialSerializer
 from procurement.models import ProcurementOrderLine, ProcurementOrder
+
 
 class ProcurementOrderLineSerializer(serializers.ModelSerializer):
     po = serializers.PrimaryKeyRelatedField(queryset=ProcurementOrder.objects.all(), required=False)
@@ -56,6 +58,25 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
                 setattr(instance, field, validated_data[field])
         instance.save()
         return instance
+    
+    def validate(self, attrs):
+        # Use self.partial to determine if this is a partial update
+        uom = attrs.get('uom')
+        quantity = attrs.get('quantity')
+        if getattr(self, 'partial', False):
+            instance = getattr(self, 'instance', None)
+            if instance:
+                if uom is None:
+                    uom = getattr(instance, 'uom', None)
+                if quantity is None:
+                    quantity = getattr(instance, 'quantity', None)
+        if uom in ['PLT', 'BOX', 'ADT']:
+            if quantity is not None and quantity % 1 != 0:
+                raise serializers.ValidationError({
+                    'quantity': _('Miktar, Palet, Koli veya Adet birimleri için tam sayı olmalıdır.')
+                })
+        return attrs
+        
     
     def create(self, validated_data):
         po = validated_data.get('po')
