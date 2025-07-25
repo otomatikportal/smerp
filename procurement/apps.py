@@ -10,7 +10,8 @@ class ProcurementConfig(AppConfig):
         from django.contrib.auth.models import Group, Permission
         from django.contrib.contenttypes.models import ContentType
         from procurement.models import ProcurementOrder
-
+        import procurement.signals
+        
         def create_default_groups(sender, **kwargs):
             # Define groups and their procurement permissions
             base_perms = [

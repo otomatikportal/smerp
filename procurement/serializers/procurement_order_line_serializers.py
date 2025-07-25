@@ -8,6 +8,10 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
     po = serializers.PrimaryKeyRelatedField(queryset=ProcurementOrder.objects.all(), required=False)
     created_at = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.SerializerMethodField(read_only=True)
+    quantity = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False)
+    quantity_received = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False)
+    unit_price = serializers.DecimalField(max_digits=32, decimal_places=2, coerce_to_string=False, required=False, allow_null=True)
+    tax_rate = serializers.DecimalField(max_digits=4, decimal_places=3, coerce_to_string=False, required=False, allow_null=True)
 
     class Meta:
         model = ProcurementOrderLine

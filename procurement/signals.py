@@ -5,6 +5,7 @@ from sales.models import VariableCost
 
 @receiver(post_save, sender=ProcurementOrder)
 def create_cost_data(sender, instance, **kwargs):
+    print('triggered')
     # Only act if status is 'approved'
     if instance.status == 'approved':
         for line in instance.lines.all():

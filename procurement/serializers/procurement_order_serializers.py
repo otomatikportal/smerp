@@ -189,7 +189,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         allowed_fields = [
             'payment_term', 'payment_method', 'incoterms', 'trade_discount',
             'due_in_days', 'due_discount', 'due_discount_days',
-            'description', 'currency', 'delivery_address'
+            'description', 'currency', 'delivery_address', 'vendor',
         ]
         status = instance.status
         if status == 'draft':
