@@ -16,14 +16,5 @@ DATABASES = {
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
-        }
-    },
-    # Allow local development access
-    'VALIDATOR_URL': None,
-}
 
 NGINX_SECRET_KEY = "7fxZ60hbeU909nwaCb3kwFPDVpz6e3JKtgy7Wbqr3ZU="

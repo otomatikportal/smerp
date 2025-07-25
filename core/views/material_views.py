@@ -46,69 +46,50 @@ class MaterialViewSet(viewsets.ModelViewSet):
     permission_classes = [DjangoModelPermissions]
 
     def list(self, request, *args, **kwargs):
-        try:
-            response = super().list(request, *args, **kwargs)
-            if isinstance(response.data, dict) and "results" in response.data:
-                response.data["status"] = "success"
-                response.data["message"] = "Materials retrieved successfully"
-                return response
-            return Response({
-                "status": "success",
-                "message": "Materials retrieved successfully",
-                "results": response.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().list(request, *args, **kwargs)
+        if isinstance(response.data, dict) and "results" in response.data:
+            response.data["status"] = "success"
+            response.data["message"] = "Materials retrieved successfully"
+            return response
+
 
     def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance)
-            return Response({
-                "status": "success",
-                "message": "Material retrieved successfully",
-                "result": serializer.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({
+            "status": "success",
+            "message": "Material retrieved successfully",
+            "result": serializer.data
+        }, status=status.HTTP_200_OK)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        try:
-            response = super().create(request, *args, **kwargs)
-            return Response({
-                "status": "success",
-                "message": "Material created successfully",
-                "result": response.data
-            }, status=status.HTTP_201_CREATED)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().create(request, *args, **kwargs)
+        return Response({
+            "status": "success",
+            "message": "Material created successfully",
+            "result": response.data
+        }, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        try:
-            response = super().partial_update(request, *args, **kwargs)
-            return Response({
-                "status": "success",
-                "message": "Material updated successfully",
-                "result": response.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().partial_update(request, *args, **kwargs)
+        return Response({
+            "status": "success",
+            "message": "Material updated successfully",
+            "result": response.data
+        }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer()
-            serializer.delete(instance)
-            return Response({
-                "status": "success",
-                "message": "Material deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance = self.get_object()
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({
+            "status": "success",
+            "message": "Material deleted successfully"
+        }, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         return Response({
@@ -119,40 +100,23 @@ class MaterialViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        try:
-            instance.delete(force_policy=HARD_DELETE)
-            return Response({
-                "status": "success",
-                "message": "Material hard deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance.delete(force_policy=HARD_DELETE)
+        return Response({
+            "status": "success",
+            "message": "Material hard deleted successfully"
+        }, status=status.HTTP_200_OK)
         
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Example for a custom is_deleted flag:
-        instance.is_deleted = False
-        instance.save()
+        if instance.deleted is not None:
+            instance.undelete()
+        serializer = self.get_serializer(instance)
         return Response({
             "status": "success",
-            "message": "Material recovered successfully"
+            "message": "Material recovered successfully",
+            "results": serializer.data
         }, status=status.HTTP_200_OK)
 
-    def handle_exception(self, exc):
-        response = exception_handler(exc, self.get_exception_handler_context())
-        if response is not None:
-            response.data = {
-                "status": "error",
-                "message": str(exc),
-                "details": response.data
-            }
-            return response
-        
-        # Fallback 500 error
-        return Response({
-            "status": "error",
-            "message": "Internal server error",
-            "details": str(exc)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

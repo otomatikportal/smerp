@@ -149,17 +149,3 @@ class InventoryIncomingViewset(ViewSet):
             raise serializers.ValidationError(serializer.errors)
         
         
-    def handle_exception(self, exc):
-        response = exception_handler(exc, self.get_exception_handler_context())
-        if response is not None:
-            response.data = {
-                "status": "error",
-                "message": str(exc),
-                "details": response.data
-            }
-            return response
-        return Response({
-            "status": "error",
-            "message": "Internal server error",
-            "details": str(exc)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

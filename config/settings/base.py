@@ -63,6 +63,7 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.custom_exception_handler.custom_exception_handler',
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissions',
     ],
@@ -132,6 +133,10 @@ LOCALE_PATHS = [
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+SWAGGER_SETTINGS = {
+    "DEFAULT_INFO": "root_urls.api_info",
+}
 
 
 # Default primary key field type

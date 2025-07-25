@@ -56,126 +56,74 @@ class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
     permission_classes = [CustomDjangoModelPermissions]
 
     def list(self, request, *args, **kwargs):
-        try:
-            response = super().list(request, *args, **kwargs)
-            if isinstance(response.data, dict) and "results" in response.data:
-                response.data["status"] = "success"
-                response.data["message"] = "Procurement order lines retrieved successfully"
-                return response
-            return Response({
-                "status": "success",
-                "message": "Procurement order lines retrieved successfully",
-                "results": response.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().list(request, *args, **kwargs)
+        if isinstance(response.data, dict) and "results" in response.data:
+            response.data["status"] = "success"
+            response.data["message"] = "Procurement order lines retrieved successfully"
+            return response
 
     def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance, context={'action': 'retrieve'})
-            return Response({
-                "status": "success",
-                "message": "Procurement order line retrieved successfully",
-                "result": serializer.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, context={'action': 'retrieve'})
+        return Response({
+            "status": "success",
+            "message": "Procurement order line retrieved successfully",
+            "result": serializer.data
+        }, status=status.HTTP_200_OK)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        try:
-            response = super().create(request, *args, **kwargs)
-            return Response({
-                "status": "success",
-                "message": "Procurement order line created successfully",
-                "result": response.data
-            }, status=status.HTTP_201_CREATED)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().create(request, *args, **kwargs)
+        return Response({
+            "status": "success",
+            "message": "Procurement order line created successfully",
+            "result": response.data
+        }, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response({
-                "status": "success",
-                "message": "Procurement order line updated successfully",
-                "result": serializer.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({
+            "status": "success",
+            "message": "Procurement order line updated successfully",
+            "result": serializer.data
+        }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='delete', permission_classes=[DjangoModelPermissions])
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer()
-            # Soft delete (SafeDeleteModel)
-            serializer.delete(instance)
-            return Response({
-                "status": "success",
-                "message": "Procurement order line soft deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
-
-    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer()
+        # Soft delete (SafeDeleteModel)
+        serializer.delete(instance)
         return Response({
-            "status": "error",
-            "message": "PUT method is not allowed for this resource. Use PATCH instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            "status": "success",
+            "message": "Procurement order line soft deleted successfully"
+        }, status=status.HTTP_200_OK)
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        try:
-            instance.delete(force_policy=HARD_DELETE)
-            return Response({
-                "status": "success",
-                "message": "Procurement order line hard deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance.delete(force_policy=HARD_DELETE)
+        return Response({
+            "status": "success",
+            "message": "Procurement order line hard deleted successfully"
+        }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
         instance = self.get_object()
-        if hasattr(instance, 'undelete'):
+        if instance.deleted is not None:
             instance.undelete()
-        else:
-            instance.save()
+        serializer = self.get_serializer(instance)
         return Response({
             "status": "success",
-            "message": "Procurement order line recovered successfully"
+            "message": "Procurement order line recovered successfully",
+            "result":serializer.data
         }, status=status.HTTP_200_OK)
 
-    def handle_exception(self, exc):
-        # Get the default DRF response
-        response = exception_handler(exc, self.get_exception_handler_context())
-        
-        if response is not None:
-            # Preserve original error message for common cases
-            if hasattr(exc, 'detail'):
-                message = str(exc.detail)
-            else:
-                message = str(exc)
-                
-            response.data = {
-                "status": "error",
-                "message": message,  # More precise error message
-                "details": response.data
-            }
-            return response
-        
-        # Fallback for completely unhandled exceptions
-        return Response({
-            "status": "error", 
-            "message": "Internal server error",
-            "details": str(exc) if settings.DEBUG else "An unexpected error occurred"
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

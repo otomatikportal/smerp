@@ -27,7 +27,6 @@ class CustomPagination(pagination.PageNumberPagination):
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
-    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
     """
     API endpoint for managing companies.
 
@@ -36,6 +35,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
       - search_fields: name, legal_name, e_mail, website, phone, description
       - ordering_fields: id, name, legal_name
     """
+    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
     queryset = Company.objects.all().order_by('-id')
     serializer_class = CompanySerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -46,79 +46,61 @@ class CompanyViewSet(viewsets.ModelViewSet):
     permission_classes = [DjangoModelPermissions]
 
     def list(self, request, *args, **kwargs):
-        try:
-            response = super().list(request, *args, **kwargs)
-            if isinstance(response.data, dict) and "results" in response.data:
-                response.data["status"] = "success"
-                response.data["message"] = "Companies retrieved successfully"
-                return response
-            return Response({
-                "status": "success",
-                "message": "Companies retrieved successfully",
-                "results": response.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().list(request, *args, **kwargs)
+        # Enhance successful response
+        if isinstance(response.data, dict) and "results" in response.data:
+            response.data["status"] = "success"
+            response.data["message"] = "Companies retrieved successfully"
+
 
     def retrieve(self, request, *args, **kwargs):
-        print('executed')
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance, context={'action': 'retrieve'})
-            return Response({
-                "status": "success",
-                "message": "Company retrieved successfully",
-                "result": serializer.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, context={'action': 'retrieve'})
+        return Response({
+            "status": "success",
+            "message": "Company retrieved successfully",
+            "result": serializer.data
+        }, status=status.HTTP_200_OK)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        try:
-            response = super().create(request, *args, **kwargs)
-            return Response({
-                "status": "success",
-                "message": "Company created successfully",
-                "result": response.data
-            }, status=status.HTTP_201_CREATED)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().create(request, *args, **kwargs)
+        response.data = {
+            "status": "success",
+            "message": "Company created successfully",
+            "result": response.data
+        }
+        response.status_code = status.HTTP_201_CREATED
+        return response
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        try:
-            response = super().partial_update(request, *args, **kwargs)
-            return Response({
-                "status": "success",
-                "message": "Company updated successfully",
-                "result": response.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().partial_update(request, *args, **kwargs)
+        response.data = {
+            "status": "success",
+            "message": "Company updated successfully",
+            "result": response.data
+        }
+        return response
 
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer()
-            serializer.delete(instance)
-            return Response({
-                "status": "success",
-                "message": "Company deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
-        
+        instance = self.get_object()
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({
+            "status": "success",
+            "message": "Company deleted successfully"
+        }, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
         instance = self.get_object()
-        if hasattr(instance, 'undelete'):
+        if instance.deleted is not None:
             instance.undelete()
-        else:
-            instance.save()
+        serializer = self.get_serializer(instance)
         return Response({
             "status": "success",
             "message": "Company recovered successfully"
@@ -133,27 +115,8 @@ class CompanyViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        try:
-            instance.delete(force_policy=HARD_DELETE)
-            return Response({
-                "status": "success",
-                "message": "Company hard deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
-
-    def handle_exception(self, exc):
-        response = exception_handler(exc, self.get_exception_handler_context())
-        if response is not None:
-            response.data = {
-                "status": "error",
-                "message": str(exc),
-                "details": response.data
-            }
-            return response
-        # Fallback 500 error
+        instance.delete(force_policy=HARD_DELETE)
         return Response({
-            "status": "error",
-            "message": "Internal server error",
-            "details": str(exc)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            "status": "success",
+            "message": "Company hard deleted successfully"
+        }, status=status.HTTP_200_OK)

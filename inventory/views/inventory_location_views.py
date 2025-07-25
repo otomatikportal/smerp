@@ -59,111 +59,89 @@ class InventoryLocationViewSet(viewsets.ModelViewSet):
     
 
     def list(self, request, *args, **kwargs):
-        try:
-            queryset = self.filter_queryset(self.get_queryset())
-            page = self.paginate_queryset(queryset)
-            if page is not None:
-                serializer = self.get_serializer(page, many=True, context={**self.get_serializer_context(), 'action': 'list'})
-                return self.get_paginated_response(serializer.data)
-            serializer = self.get_serializer(queryset, many=True, context={**self.get_serializer_context(), 'action': 'list'})
-            return Response({
-                "status": "success",
-                "message": "Inventory locations retrieved successfully",
-                "results": serializer.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().list(request, *args, **kwargs)
+        if isinstance(response.data, dict) and "results" in response.data:
+            response.data["status"] = "success"
+            response.data["message"] = "Inventory Locations retrieved successfully"
+            return response
 
 
     def retrieve(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance, context={**self.get_serializer_context(), 'action': 'retrieve'})
-            return Response({
-                "status": "success",
-                "message": "Inventory location retrieved successfully",
-                "result": serializer.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, context={**self.get_serializer_context(), 'action': 'retrieve'})
+        return Response({
+            "status": "success",
+            "message": "Inventory location retrieved successfully",
+            "result": serializer.data
+        }, status=status.HTTP_200_OK)
 
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        try:
-            # Extract relevant fields from request data
-            data = request.data
-            unique_fields = ['facility', 'area', 'section', 'shelf', 'bin', 'type', 'name']
-            filter_kwargs = {field: data.get(field) for field in unique_fields if data.get(field) is not None}
+        # Extract relevant fields from request data
+        data = request.data
+        unique_fields = ['facility', 'area', 'section', 'shelf', 'bin', 'type', 'name']
+        filter_kwargs = {field: data.get(field) for field in unique_fields if data.get(field) is not None}
 
-            # Find a soft-deleted instance using safedelete's deleted field
-            existing = InventoryLocation.all_objects.filter(**filter_kwargs).filter(deleted__isnull=False).first()
-            if existing:
-                existing.undelete()
-                # Apply partial update with request data
-                serializer = self.get_serializer(existing, data=data)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                return Response({
-                    "status": "success",
-                    "message": "Inventory location recovered and updated successfully",
-                    "result": serializer.data
-                }, status=status.HTTP_200_OK)
-
-            serializer = self.get_serializer(data=data)
+        # Find a soft-deleted instance using safedelete's deleted field
+        existing = InventoryLocation.all_objects.filter(**filter_kwargs).filter(deleted__isnull=False).first()
+        if existing:
+            existing.undelete()
+            # Apply partial update with request data
+            serializer = self.get_serializer(existing, data=data)
             serializer.is_valid(raise_exception=True)
-            instance = serializer.save()
-            instance._change_reason = "Created via API"
-            instance.save()
-            
+            serializer.save()
             return Response({
                 "status": "success",
-                "message": "Inventory location created successfully",
+                "message": "Inventory location recovered and updated successfully",
                 "result": serializer.data
-            }, status=status.HTTP_201_CREATED)
-            
-        except Exception as exc:
-            return self.handle_exception(exc)
+            }, status=status.HTTP_200_OK)
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        instance._change_reason = "Created via API"
+        instance.save()
+        
+        return Response({
+            "status": "success",
+            "message": "Inventory location created successfully",
+            "result": serializer.data
+        }, status=status.HTTP_201_CREATED)
 
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
-        try:
-            response = super().partial_update(request, *args, **kwargs)
-            return Response({
-                "status": "success",
-                "message": "Inventory location updated successfully",
-                "result": response.data
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        response = super().partial_update(request, *args, **kwargs)
+        return Response({
+            "status": "success",
+            "message": "Inventory location updated successfully",
+            "result": response.data
+        }, status=status.HTTP_200_OK)
 
 
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            instance.delete()
-            return Response({
-                "status": "success",
-                "message": "Inventory location deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
+        instance = self.get_object()
+        instance.delete()
+        return Response({
+            "status": "success",
+            "message": "Inventory location deleted successfully"
+        }, status=status.HTTP_200_OK)
 
 
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
         instance = self.get_object()
-        if hasattr(instance, 'undelete'):
+        if instance.deleted is not None:
             instance.undelete()
-        else:
-            instance.save()
+        serializer = self.get_serializer(instance)
         return Response({
             "status": "success",
-            "message": "Inventory location recovered successfully"
+            "message": "Inventory location recovered successfully",
+            "results": serializer.data
         }, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
@@ -175,31 +153,13 @@ class InventoryLocationViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        try:
-            # Use safedelete's HARD_DELETE policy for permanent deletion
-            if hasattr(instance, 'delete'):
-                instance.delete(force_policy=HARD_DELETE)
-            else:
-                instance.delete()
-            return Response({
-                "status": "success",
-                "message": "Inventory location hard deleted successfully"
-            }, status=status.HTTP_200_OK)
-        except Exception as exc:
-            return self.handle_exception(exc)
-
-    def handle_exception(self, exc):
-        response = exception_handler(exc, self.get_exception_handler_context())
-        if response is not None:
-            response.data = {
-                "status": "error",
-                "message": str(exc),
-                "details": response.data
-            }
-            return response
-        # Fallback 500 error
+        # Use safedelete's HARD_DELETE policy for permanent deletion
+        if hasattr(instance, 'delete'):
+            instance.delete(force_policy=HARD_DELETE)
+        else:
+            instance.delete()
         return Response({
-            "status": "error",
-            "message": "Internal server error",
-            "details": str(exc)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            "status": "success",
+            "message": "Inventory location hard deleted successfully"
+        }, status=status.HTTP_200_OK)
+

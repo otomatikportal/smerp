@@ -74,12 +74,24 @@ class VariableCost(SafeDeleteModel):
     
     def clean(self):
         super().clean()
+        # Custom logic for source fields
+        # Try to get request from model instance (if set by serializer or view)
+        request = getattr(self, '_request', None)
+
+        # If both are None, fallback to request.user if available
+        if self.procurement_order is None and self.user is None and request and hasattr(request, 'user') and request.user and request.user.is_authenticated:
+            self.user = request.user
+
+        # If procurement_order is set, user should not be considered as source
+        if self.procurement_order is not None:
+            self.user = None
+
         # Validate that exactly one source foreign key is set
         source_fields = [self.procurement_order, self.user]
         set_fields = [field for field in source_fields if field is not None]
-        
         if len(set_fields) != 1:
-            raise ValidationError(_("Exactly one source field must be set"))
+            raise ValidationError(_("Sadece bir kaynak gösterilebilir"))
+
 
     @property
     def source_type(self):

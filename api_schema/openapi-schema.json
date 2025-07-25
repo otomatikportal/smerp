@@ -1,1 +1,3292 @@
-{"swagger": "2.0", "info": {"title": "SMERP API", "description": "Auto-generated docs for SMERP API", "version": "v1"}, "host": "localhost:8000", "schemes": ["http"], "basePath": "/api/v1", "consumes": ["application/json"], "produces": ["application/json"], "securityDefinitions": {"Basic": {"type": "basic"}}, "security": [{"Basic": []}], "paths": {"/companies/": {"get": {"operationId": "companies_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/Company"}}}}}}, "tags": ["companies"]}, "post": {"operationId": "companies_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Company"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Company"}}}, "tags": ["companies"]}, "parameters": []}, "/companies/{id}/": {"get": {"operationId": "companies_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/Company"}}}, "tags": ["companies"]}, "patch": {"operationId": "companies_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Company"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/Company"}}}, "tags": ["companies"]}, "delete": {"operationId": "companies_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["companies"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this company.", "required": true, "type": "integer"}]}, "/companies/{id}/delete/": {"post": {"operationId": "companies_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Company"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Company"}}}, "tags": ["companies"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this company.", "required": true, "type": "integer"}]}, "/companies/{id}/recover/": {"post": {"operationId": "companies_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Company"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Company"}}}, "tags": ["companies"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this company.", "required": true, "type": "integer"}]}, "/contacts/": {"get": {"operationId": "contacts_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/Contact"}}}}}}, "tags": ["contacts"]}, "post": {"operationId": "contacts_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Contact"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Contact"}}}, "tags": ["contacts"]}, "parameters": []}, "/contacts/{id}/": {"get": {"operationId": "contacts_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/Contact"}}}, "tags": ["contacts"]}, "patch": {"operationId": "contacts_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Contact"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/Contact"}}}, "tags": ["contacts"]}, "delete": {"operationId": "contacts_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["contacts"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this contact.", "required": true, "type": "integer"}]}, "/contacts/{id}/delete/": {"post": {"operationId": "contacts_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Contact"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Contact"}}}, "tags": ["contacts"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this contact.", "required": true, "type": "integer"}]}, "/contacts/{id}/recover/": {"post": {"operationId": "contacts_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Contact"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Contact"}}}, "tags": ["contacts"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this contact.", "required": true, "type": "integer"}]}, "/inventory-incoming/enter-inventory/": {"put": {"operationId": "inventory-incoming_enter_ordered_material", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/SimpleInventoryTransaction"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/StockRecord"}}}, "tags": ["inventory-incoming"]}, "parameters": []}, "/inventory-incoming/incoming/": {"get": {"operationId": "inventory-incoming_incoming", "description": "", "parameters": [], "responses": {"200": {"description": ""}}, "tags": ["inventory-incoming"]}, "parameters": []}, "/inventory-incoming/{id}/incoming-detail/": {"get": {"operationId": "inventory-incoming_incoming_detail", "description": "", "parameters": [], "responses": {"200": {"description": ""}}, "tags": ["inventory-incoming"]}, "parameters": [{"name": "id", "in": "path", "required": true, "type": "string"}]}, "/inventory-locations/": {"get": {"operationId": "inventory-locations_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/InventoryLocation"}}}}}}, "tags": ["inventory-locations"]}, "post": {"operationId": "inventory-locations_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/InventoryLocation"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/InventoryLocation"}}}, "tags": ["inventory-locations"]}, "parameters": []}, "/inventory-locations/{id}/": {"get": {"operationId": "inventory-locations_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/InventoryLocation"}}}, "tags": ["inventory-locations"]}, "patch": {"operationId": "inventory-locations_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/InventoryLocation"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/InventoryLocation"}}}, "tags": ["inventory-locations"]}, "delete": {"operationId": "inventory-locations_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["inventory-locations"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this inventory location.", "required": true, "type": "integer"}]}, "/inventory-locations/{id}/delete/": {"post": {"operationId": "inventory-locations_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/InventoryLocation"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/InventoryLocation"}}}, "tags": ["inventory-locations"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this inventory location.", "required": true, "type": "integer"}]}, "/inventory-locations/{id}/recover/": {"post": {"operationId": "inventory-locations_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/InventoryLocation"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/InventoryLocation"}}}, "tags": ["inventory-locations"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this inventory location.", "required": true, "type": "integer"}]}, "/material-demands/": {"get": {"operationId": "material-demands_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/MaterialDemand"}}}}}}, "tags": ["material-demands"]}, "post": {"operationId": "material-demands_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/MaterialDemand"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/MaterialDemand"}}}, "tags": ["material-demands"]}, "parameters": []}, "/material-demands/{id}/": {"get": {"operationId": "material-demands_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/MaterialDemand"}}}, "tags": ["material-demands"]}, "patch": {"operationId": "material-demands_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/MaterialDemand"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/MaterialDemand"}}}, "tags": ["material-demands"]}, "delete": {"operationId": "material-demands_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["material-demands"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this material demand.", "required": true, "type": "integer"}]}, "/material-demands/{id}/delete/": {"post": {"operationId": "material-demands_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/MaterialDemand"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/MaterialDemand"}}}, "tags": ["material-demands"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this material demand.", "required": true, "type": "integer"}]}, "/material-demands/{id}/recover/": {"post": {"operationId": "material-demands_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/MaterialDemand"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/MaterialDemand"}}}, "tags": ["material-demands"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this material demand.", "required": true, "type": "integer"}]}, "/materials/": {"get": {"operationId": "materials_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/Material"}}}}}}, "tags": ["materials"]}, "post": {"operationId": "materials_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Material"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Material"}}}, "tags": ["materials"]}, "parameters": []}, "/materials/{id}/": {"get": {"operationId": "materials_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/Material"}}}, "tags": ["materials"]}, "patch": {"operationId": "materials_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Material"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/Material"}}}, "tags": ["materials"]}, "delete": {"operationId": "materials_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["materials"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this material.", "required": true, "type": "integer"}]}, "/materials/{id}/delete/": {"post": {"operationId": "materials_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Material"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Material"}}}, "tags": ["materials"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this material.", "required": true, "type": "integer"}]}, "/materials/{id}/recover/": {"post": {"operationId": "materials_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/Material"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/Material"}}}, "tags": ["materials"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this material.", "required": true, "type": "integer"}]}, "/procurement-order-lines/": {"get": {"operationId": "procurement-order-lines_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/ProcurementOrderLine"}}}}}}, "tags": ["procurement-order-lines"]}, "post": {"operationId": "procurement-order-lines_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}}, "tags": ["procurement-order-lines"]}, "parameters": []}, "/procurement-order-lines/{id}/": {"get": {"operationId": "procurement-order-lines_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}}, "tags": ["procurement-order-lines"]}, "patch": {"operationId": "procurement-order-lines_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}}, "tags": ["procurement-order-lines"]}, "delete": {"operationId": "procurement-order-lines_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["procurement-order-lines"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order line.", "required": true, "type": "integer"}]}, "/procurement-order-lines/{id}/delete/": {"post": {"operationId": "procurement-order-lines_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}}, "tags": ["procurement-order-lines"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order line.", "required": true, "type": "integer"}]}, "/procurement-order-lines/{id}/recover/": {"post": {"operationId": "procurement-order-lines_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrderLine"}}}, "tags": ["procurement-order-lines"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order line.", "required": true, "type": "integer"}]}, "/procurement-orders/": {"get": {"operationId": "procurement-orders_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/ProcurementOrder"}}}}}}, "tags": ["procurement-orders"]}, "post": {"operationId": "procurement-orders_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": []}, "/procurement-orders/{id}/": {"get": {"operationId": "procurement-orders_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "patch": {"operationId": "procurement-orders_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "delete": {"operationId": "procurement-orders_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/delete/": {"post": {"operationId": "procurement-orders_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/recover/": {"post": {"operationId": "procurement-orders_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-approved/": {"patch": {"operationId": "procurement-orders_set_status_approved", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-billed/": {"patch": {"operationId": "procurement-orders_set_status_billed", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-cancelled/": {"patch": {"operationId": "procurement-orders_set_status_cancelled", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-draft/": {"patch": {"operationId": "procurement-orders_set_status_draft", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-ordered/": {"patch": {"operationId": "procurement-orders_set_status_ordered", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-paid/": {"patch": {"operationId": "procurement-orders_set_status_paid", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-rejected/": {"patch": {"operationId": "procurement-orders_set_status_rejected", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/procurement-orders/{id}/set-status-submitted/": {"patch": {"operationId": "procurement-orders_set_status_submitted", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/ProcurementOrder"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/ProcurementOrder"}}}, "tags": ["procurement-orders"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this procurement order.", "required": true, "type": "integer"}]}, "/stock-records/": {"get": {"operationId": "stock-records_list", "description": "", "parameters": [{"name": "search", "in": "query", "description": "A search term.", "required": false, "type": "string"}, {"name": "ordering", "in": "query", "description": "Which field to use when ordering the results.", "required": false, "type": "string"}, {"name": "page", "in": "query", "description": "A page number within the paginated result set.", "required": false, "type": "integer"}, {"name": "page_size", "in": "query", "description": "Number of results to return per page.", "required": false, "type": "integer"}], "responses": {"200": {"description": "", "schema": {"required": ["count", "results"], "type": "object", "properties": {"count": {"type": "integer"}, "next": {"type": "string", "format": "uri", "x-nullable": true}, "previous": {"type": "string", "format": "uri", "x-nullable": true}, "results": {"type": "array", "items": {"$ref": "#/definitions/StockRecord"}}}}}}, "tags": ["stock-records"]}, "post": {"operationId": "stock-records_create", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/StockRecord"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/StockRecord"}}}, "tags": ["stock-records"]}, "parameters": []}, "/stock-records/{id}/": {"get": {"operationId": "stock-records_read", "description": "", "parameters": [], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/StockRecord"}}}, "tags": ["stock-records"]}, "patch": {"operationId": "stock-records_partial_update", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/StockRecord"}}], "responses": {"200": {"description": "", "schema": {"$ref": "#/definitions/StockRecord"}}}, "tags": ["stock-records"]}, "delete": {"operationId": "stock-records_delete", "description": "", "parameters": [], "responses": {"204": {"description": ""}}, "tags": ["stock-records"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this stock record.", "required": true, "type": "integer"}]}, "/stock-records/{id}/delete/": {"post": {"operationId": "stock-records_delete", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/StockRecord"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/StockRecord"}}}, "tags": ["stock-records"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this stock record.", "required": true, "type": "integer"}]}, "/stock-records/{id}/recover/": {"post": {"operationId": "stock-records_recover", "description": "", "parameters": [{"name": "data", "in": "body", "required": true, "schema": {"$ref": "#/definitions/StockRecord"}}], "responses": {"201": {"description": "", "schema": {"$ref": "#/definitions/StockRecord"}}}, "tags": ["stock-records"]}, "parameters": [{"name": "id", "in": "path", "description": "A unique integer value identifying this stock record.", "required": true, "type": "integer"}]}}, "definitions": {"Contact": {"required": ["description"], "type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "company": {"title": "Firma", "type": "integer", "x-nullable": true}, "name": {"title": "Ad", "type": "string", "maxLength": 128, "minLength": 1, "x-nullable": true}, "last_name": {"title": "Soyad", "type": "string", "maxLength": 128, "minLength": 1, "x-nullable": true}, "gender": {"title": "Cinsiyet", "type": "string", "enum": ["e", "k", "b"]}, "role": {"title": "Rol", "type": "string", "enum": ["owner", "employee", "salesperson", "procurement"], "x-nullable": true}, "e_mail": {"title": "E-posta", "type": "string", "maxLength": 254, "minLength": 1, "x-nullable": true}, "phone": {"title": "Telefon", "type": "string", "maxLength": 12, "minLength": 1, "x-nullable": true}, "description": {"title": "Açıklama", "type": "string", "maxLength": 500, "minLength": 1}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}}}, "Company": {"required": ["description"], "type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "name": {"title": "Ad", "type": "string", "maxLength": 50, "minLength": 1, "x-nullable": true}, "legal_name": {"title": "Ticari Unvan", "type": "string", "maxLength": 128, "minLength": 1, "x-nullable": true}, "e_mail": {"title": "E-posta", "type": "string", "maxLength": 254, "minLength": 1, "x-nullable": true}, "website": {"title": "Web Sitesi", "type": "string", "maxLength": 254, "minLength": 1, "x-nullable": true}, "phone": {"title": "Telefon", "type": "string", "maxLength": 12, "minLength": 1, "x-nullable": true}, "description": {"title": "Açıklama", "type": "string", "maxLength": 500, "minLength": 1}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}, "contacts": {"type": "array", "items": {"$ref": "#/definitions/Contact"}}}}, "SimpleInventoryTransaction": {"required": ["location", "quantity", "uom", "source_id"], "type": "object", "properties": {"location": {"title": "Location", "type": "integer"}, "quantity": {"title": "Quantity", "type": "string", "format": "decimal"}, "uom": {"title": "Uom", "type": "string", "enum": ["ADT", "KG", "G", "L", "ML", "M", "BOX", "PLT"]}, "change_reason": {"title": "Change reason", "type": "string", "maxLength": 100, "minLength": 1}, "source_id": {"title": "Source id", "type": "integer"}}}, "StockRecord": {"required": ["material", "quantity", "location"], "type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "material": {"title": "Malzeme", "type": "integer"}, "uom": {"title": "Birim", "type": "string", "enum": ["ADT", "KG", "G", "L", "ML", "M", "BOX", "PLT"], "default": "ADT"}, "quantity": {"title": "Miktar", "type": "string", "format": "decimal"}, "location": {"title": "Konum", "type": "integer"}, "change_reason": {"title": "Change reason", "type": "string", "minLength": 1}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}}}, "InventoryLocation": {"type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "name": {"title": "İsim", "type": "string", "maxLength": 50}, "facility": {"title": "Tesis", "type": "string", "enum": ["esenyurt"], "default": "esenyurt"}, "area": {"title": "Bölge", "type": "integer", "maximum": 2147483647, "minimum": -2147483648, "x-nullable": true}, "section": {"title": "Sıra", "type": "integer", "maximum": 2147483647, "minimum": -2147483648, "x-nullable": true}, "shelf": {"title": "Raf", "type": "integer", "maximum": 2147483647, "minimum": -2147483648, "x-nullable": true}, "bin": {"title": "Bölme", "type": "integer", "maximum": 2147483647, "minimum": -2147483648, "x-nullable": true}, "type": {"title": "Tipi", "type": "string", "enum": ["industrial_shelf", "exit_transit", "injection_transit", "manufacturing_transit", "resin_storage", "masterbatch", "chemical", "unlabeled", "temporary"]}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}}}, "MaterialDemand": {"required": ["material", "quantity", "deadline", "description"], "type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "demand_no": {"title": "Talep No", "type": "string", "readOnly": true, "minLength": 1, "x-nullable": true}, "material": {"title": "Malzeme", "type": "integer"}, "quantity": {"title": "Miktar", "type": "string", "format": "decimal"}, "uom": {"title": "Birim", "type": "string", "enum": ["ADT", "KG", "G", "L", "ML", "M", "BOX", "PLT"]}, "deadline": {"title": "Son Tarih", "type": "string", "format": "date"}, "description": {"title": "Açıklama", "type": "string", "maxLength": 500, "minLength": 1}, "status": {"title": "Durum", "type": "string", "enum": ["submitted", "approved", "closed"], "readOnly": true}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}}}, "Material": {"required": ["description"], "type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "name": {"title": "Ad", "type": "string", "maxLength": 128, "minLength": 1, "x-nullable": true}, "category": {"title": "Kategori", "type": "string", "enum": ["supplied", "cardboard", "part", "good", "administrative", "pallet", "undefined"]}, "internal_code": {"title": "İç Kod", "type": "string", "readOnly": true, "minLength": 1, "x-nullable": true}, "description": {"title": "Açıklama", "type": "string", "maxLength": 500, "minLength": 1}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}}}, "ProcurementOrderLine": {"required": ["po", "material", "quantity"], "type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "po": {"title": "Po", "type": "integer"}, "material": {"title": "Malzeme", "type": "integer"}, "uom": {"title": "Birim", "type": "string", "enum": ["ADT", "KG", "G", "L", "ML", "M", "BOX", "PLT"]}, "quantity": {"title": "Miktar", "type": "string", "format": "decimal"}, "quantity_received": {"title": "Alınan Miktar", "type": "string", "format": "decimal"}, "unit_price": {"title": "Birim Fiyat", "type": "string", "format": "decimal", "x-nullable": true}, "tax_rate": {"title": "Vergi Oranı", "type": "string", "format": "decimal", "x-nullable": true}, "quantity_left": {"title": "Quantity left", "type": "string", "readOnly": true}, "total_with_tax": {"title": "Total with tax", "type": "string", "readOnly": true}, "total_without_tax": {"title": "Total without tax", "type": "string", "readOnly": true}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}}}, "ProcurementOrder": {"required": ["payment_term", "payment_method", "incoterms", "due_in_days", "description"], "type": "object", "properties": {"id": {"title": "ID", "type": "integer", "readOnly": true}, "vendor": {"title": "Vendor", "type": "integer"}, "payment_term": {"title": "Ödeme Koşulları", "type": "string", "enum": ["NET_T", "DUE_ON_RECEIPT", "CIA", "CWO", "COD", "CAD", "EOM", "T_EOM", "PROX", "PARTIAL_ADVANCE", "LC", "DC", "X_Y_NET_T", "TRADE_DISCOUNT"]}, "payment_method": {"title": "Ödeme Yöntemi", "type": "string", "enum": ["BANK_TRANSFER", "CASH", "CREDIT_CARD", "CHEQUE", "EFT", "PROMISSORY_NOTE", "OTHER"]}, "incoterms": {"title": "Teslim Şekli (Incoterms)", "type": "string", "enum": ["EXW", "FCA", "FAS", "FOB", "CFR", "CIF", "CPT", "CIP", "DAP", "DPU", "DDP"]}, "trade_discount": {"title": "Ticari İskonto", "type": "string", "format": "decimal"}, "due_in_days": {"title": "Vade Günü", "type": "string"}, "due_discount": {"title": "Vade İskontosu", "type": "string", "format": "decimal"}, "due_discount_days": {"title": "Vade İskonto Günü", "type": "string", "x-nullable": true}, "invoice_accepted": {"title": "Invoice accepted", "type": "string", "readOnly": true}, "invoice_date": {"title": "Fatura Tebliğ Tarihi", "type": "string", "format": "date", "x-nullable": true}, "last_payment_date": {"title": "Last payment date", "type": "string", "readOnly": true}, "description": {"title": "Açıklama", "type": "string", "maxLength": 500, "minLength": 1}, "status": {"title": "Durum", "type": "string", "enum": ["draft", "submitted", "approved", "rejected", "ordered", "billed", "paid", "cancelled"]}, "currency": {"title": "Currency", "type": "string", "enum": ["TRY", "USD", "EUR", "GBP", "JPY", "CHF", "RUB", "CNY", "SEK", "AUD"]}, "delivery_address": {"title": "Teslimat Adresi", "type": "string", "maxLength": 250, "minLength": 1, "x-nullable": true}, "lines": {"type": "array", "items": {"$ref": "#/definitions/ProcurementOrderLine"}}, "created_by": {"title": "Created by", "type": "string", "readOnly": true}, "created_at": {"title": "Created at", "type": "string", "readOnly": true}, "total_price_without_tax": {"title": "Total price without tax", "type": "string", "readOnly": true}, "total_price_with_tax": {"title": "Total price with tax", "type": "string", "readOnly": true}, "all_received": {"title": "All received", "type": "string", "readOnly": true}}}}}
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "SMERP API",
+        "description": "Auto-generated docs for SMERP API",
+        "version": "v1"
+    },
+    "basePath": "/api/v1",
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "securityDefinitions": {
+        "Basic": {
+            "type": "basic"
+        }
+    },
+    "security": [
+        {
+            "Basic": []
+        }
+    ],
+    "paths": {
+        "/companies/": {
+            "get": {
+                "operationId": "companies_list",
+                "summary": "API endpoint for managing companies.",
+                "description": "Filtering options:\n  - filterset_fields: name, legal_name, e_mail, website, phone\n  - search_fields: name, legal_name, e_mail, website, phone, description\n  - ordering_fields: id, name, legal_name",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Company"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "companies"
+                ]
+            },
+            "post": {
+                "operationId": "companies_create",
+                "summary": "API endpoint for managing companies.",
+                "description": "Filtering options:\n  - filterset_fields: name, legal_name, e_mail, website, phone\n  - search_fields: name, legal_name, e_mail, website, phone, description\n  - ordering_fields: id, name, legal_name",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                },
+                "tags": [
+                    "companies"
+                ]
+            },
+            "parameters": []
+        },
+        "/companies/{id}/": {
+            "get": {
+                "operationId": "companies_read",
+                "summary": "API endpoint for managing companies.",
+                "description": "Filtering options:\n  - filterset_fields: name, legal_name, e_mail, website, phone\n  - search_fields: name, legal_name, e_mail, website, phone, description\n  - ordering_fields: id, name, legal_name",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                },
+                "tags": [
+                    "companies"
+                ]
+            },
+            "patch": {
+                "operationId": "companies_partial_update",
+                "summary": "API endpoint for managing companies.",
+                "description": "Filtering options:\n  - filterset_fields: name, legal_name, e_mail, website, phone\n  - search_fields: name, legal_name, e_mail, website, phone, description\n  - ordering_fields: id, name, legal_name",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                },
+                "tags": [
+                    "companies"
+                ]
+            },
+            "delete": {
+                "operationId": "companies_delete",
+                "summary": "API endpoint for managing companies.",
+                "description": "Filtering options:\n  - filterset_fields: name, legal_name, e_mail, website, phone\n  - search_fields: name, legal_name, e_mail, website, phone, description\n  - ordering_fields: id, name, legal_name",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "companies"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this company.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/companies/{id}/delete/": {
+            "post": {
+                "operationId": "companies_delete",
+                "summary": "API endpoint for managing companies.",
+                "description": "Filtering options:\n  - filterset_fields: name, legal_name, e_mail, website, phone\n  - search_fields: name, legal_name, e_mail, website, phone, description\n  - ordering_fields: id, name, legal_name",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                },
+                "tags": [
+                    "companies"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this company.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/companies/{id}/recover/": {
+            "post": {
+                "operationId": "companies_recover",
+                "summary": "API endpoint for managing companies.",
+                "description": "Filtering options:\n  - filterset_fields: name, legal_name, e_mail, website, phone\n  - search_fields: name, legal_name, e_mail, website, phone, description\n  - ordering_fields: id, name, legal_name",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Company"
+                        }
+                    }
+                },
+                "tags": [
+                    "companies"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this company.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/contacts/": {
+            "get": {
+                "operationId": "contacts_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Contact"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "contacts"
+                ]
+            },
+            "post": {
+                "operationId": "contacts_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                },
+                "tags": [
+                    "contacts"
+                ]
+            },
+            "parameters": []
+        },
+        "/contacts/{id}/": {
+            "get": {
+                "operationId": "contacts_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                },
+                "tags": [
+                    "contacts"
+                ]
+            },
+            "patch": {
+                "operationId": "contacts_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                },
+                "tags": [
+                    "contacts"
+                ]
+            },
+            "delete": {
+                "operationId": "contacts_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "contacts"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this contact.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/contacts/{id}/delete/": {
+            "post": {
+                "operationId": "contacts_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                },
+                "tags": [
+                    "contacts"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this contact.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/contacts/{id}/recover/": {
+            "post": {
+                "operationId": "contacts_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Contact"
+                        }
+                    }
+                },
+                "tags": [
+                    "contacts"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this contact.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/inventory-incoming/enter-inventory/": {
+            "put": {
+                "operationId": "inventory-incoming_enter_ordered_material",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SimpleInventoryTransaction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                },
+                "tags": [
+                    "inventory-incoming"
+                ]
+            },
+            "parameters": []
+        },
+        "/inventory-incoming/incoming/": {
+            "get": {
+                "operationId": "inventory-incoming_incoming",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "inventory-incoming"
+                ]
+            },
+            "parameters": []
+        },
+        "/inventory-incoming/{id}/incoming-detail/": {
+            "get": {
+                "operationId": "inventory-incoming_incoming_detail",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "inventory-incoming"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ]
+        },
+        "/inventory-locations/": {
+            "get": {
+                "operationId": "inventory-locations_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/InventoryLocation"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "inventory-locations"
+                ]
+            },
+            "post": {
+                "operationId": "inventory-locations_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                },
+                "tags": [
+                    "inventory-locations"
+                ]
+            },
+            "parameters": []
+        },
+        "/inventory-locations/{id}/": {
+            "get": {
+                "operationId": "inventory-locations_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                },
+                "tags": [
+                    "inventory-locations"
+                ]
+            },
+            "patch": {
+                "operationId": "inventory-locations_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                },
+                "tags": [
+                    "inventory-locations"
+                ]
+            },
+            "delete": {
+                "operationId": "inventory-locations_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "inventory-locations"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this inventory location.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/inventory-locations/{id}/delete/": {
+            "post": {
+                "operationId": "inventory-locations_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                },
+                "tags": [
+                    "inventory-locations"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this inventory location.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/inventory-locations/{id}/recover/": {
+            "post": {
+                "operationId": "inventory-locations_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/InventoryLocation"
+                        }
+                    }
+                },
+                "tags": [
+                    "inventory-locations"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this inventory location.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/material-demands/": {
+            "get": {
+                "operationId": "material-demands_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/MaterialDemand"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "material-demands"
+                ]
+            },
+            "post": {
+                "operationId": "material-demands_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                },
+                "tags": [
+                    "material-demands"
+                ]
+            },
+            "parameters": []
+        },
+        "/material-demands/{id}/": {
+            "get": {
+                "operationId": "material-demands_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                },
+                "tags": [
+                    "material-demands"
+                ]
+            },
+            "patch": {
+                "operationId": "material-demands_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                },
+                "tags": [
+                    "material-demands"
+                ]
+            },
+            "delete": {
+                "operationId": "material-demands_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "material-demands"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this material demand.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/material-demands/{id}/delete/": {
+            "post": {
+                "operationId": "material-demands_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                },
+                "tags": [
+                    "material-demands"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this material demand.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/material-demands/{id}/recover/": {
+            "post": {
+                "operationId": "material-demands_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/MaterialDemand"
+                        }
+                    }
+                },
+                "tags": [
+                    "material-demands"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this material demand.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/materials/": {
+            "get": {
+                "operationId": "materials_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Material"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "materials"
+                ]
+            },
+            "post": {
+                "operationId": "materials_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                },
+                "tags": [
+                    "materials"
+                ]
+            },
+            "parameters": []
+        },
+        "/materials/{id}/": {
+            "get": {
+                "operationId": "materials_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                },
+                "tags": [
+                    "materials"
+                ]
+            },
+            "patch": {
+                "operationId": "materials_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                },
+                "tags": [
+                    "materials"
+                ]
+            },
+            "delete": {
+                "operationId": "materials_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "materials"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this material.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/materials/{id}/delete/": {
+            "post": {
+                "operationId": "materials_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                },
+                "tags": [
+                    "materials"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this material.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/materials/{id}/recover/": {
+            "post": {
+                "operationId": "materials_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Material"
+                        }
+                    }
+                },
+                "tags": [
+                    "materials"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this material.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-order-lines/": {
+            "get": {
+                "operationId": "procurement-order-lines_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ProcurementOrderLine"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-order-lines"
+                ]
+            },
+            "post": {
+                "operationId": "procurement-order-lines_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-order-lines"
+                ]
+            },
+            "parameters": []
+        },
+        "/procurement-order-lines/{id}/": {
+            "get": {
+                "operationId": "procurement-order-lines_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-order-lines"
+                ]
+            },
+            "patch": {
+                "operationId": "procurement-order-lines_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-order-lines"
+                ]
+            },
+            "delete": {
+                "operationId": "procurement-order-lines_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "procurement-order-lines"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order line.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-order-lines/{id}/delete/": {
+            "post": {
+                "operationId": "procurement-order-lines_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-order-lines"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order line.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-order-lines/{id}/recover/": {
+            "post": {
+                "operationId": "procurement-order-lines_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrderLine"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-order-lines"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order line.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/": {
+            "get": {
+                "operationId": "procurement-orders_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ProcurementOrder"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "post": {
+                "operationId": "procurement-orders_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": []
+        },
+        "/procurement-orders/{id}/": {
+            "get": {
+                "operationId": "procurement-orders_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "patch": {
+                "operationId": "procurement-orders_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "delete": {
+                "operationId": "procurement-orders_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/delete/": {
+            "post": {
+                "operationId": "procurement-orders_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/recover/": {
+            "post": {
+                "operationId": "procurement-orders_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-approved/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_approved",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-billed/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_billed",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-cancelled/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_cancelled",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-draft/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_draft",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-ordered/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_ordered",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-paid/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_paid",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-rejected/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_rejected",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/procurement-orders/{id}/set-status-submitted/": {
+            "patch": {
+                "operationId": "procurement-orders_set_status_submitted",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ProcurementOrder"
+                        }
+                    }
+                },
+                "tags": [
+                    "procurement-orders"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this procurement order.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/stock-records/": {
+            "get": {
+                "operationId": "stock-records_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/StockRecord"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "stock-records"
+                ]
+            },
+            "post": {
+                "operationId": "stock-records_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                },
+                "tags": [
+                    "stock-records"
+                ]
+            },
+            "parameters": []
+        },
+        "/stock-records/{id}/": {
+            "get": {
+                "operationId": "stock-records_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                },
+                "tags": [
+                    "stock-records"
+                ]
+            },
+            "patch": {
+                "operationId": "stock-records_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                },
+                "tags": [
+                    "stock-records"
+                ]
+            },
+            "delete": {
+                "operationId": "stock-records_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "stock-records"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this stock record.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/stock-records/{id}/delete/": {
+            "post": {
+                "operationId": "stock-records_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                },
+                "tags": [
+                    "stock-records"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this stock record.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/stock-records/{id}/recover/": {
+            "post": {
+                "operationId": "stock-records_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/StockRecord"
+                        }
+                    }
+                },
+                "tags": [
+                    "stock-records"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this stock record.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/variable-costs/": {
+            "get": {
+                "operationId": "variable-costs_list",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/VariableCost"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "variable-costs"
+                ]
+            },
+            "post": {
+                "operationId": "variable-costs_create",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                },
+                "tags": [
+                    "variable-costs"
+                ]
+            },
+            "parameters": []
+        },
+        "/variable-costs/{id}/": {
+            "get": {
+                "operationId": "variable-costs_read",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                },
+                "tags": [
+                    "variable-costs"
+                ]
+            },
+            "patch": {
+                "operationId": "variable-costs_partial_update",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                },
+                "tags": [
+                    "variable-costs"
+                ]
+            },
+            "delete": {
+                "operationId": "variable-costs_delete",
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "variable-costs"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this Değişken Maliyet.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/variable-costs/{id}/delete/": {
+            "post": {
+                "operationId": "variable-costs_delete",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                },
+                "tags": [
+                    "variable-costs"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this Değişken Maliyet.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        },
+        "/variable-costs/{id}/recover/": {
+            "post": {
+                "operationId": "variable-costs_recover",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/VariableCost"
+                        }
+                    }
+                },
+                "tags": [
+                    "variable-costs"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "A unique integer value identifying this Değişken Maliyet.",
+                    "required": true,
+                    "type": "integer"
+                }
+            ]
+        }
+    },
+    "definitions": {
+        "Contact": {
+            "required": [
+                "description"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "company": {
+                    "title": "Firma",
+                    "type": "integer",
+                    "x-nullable": true
+                },
+                "name": {
+                    "title": "Ad",
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "last_name": {
+                    "title": "Soyad",
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "gender": {
+                    "title": "Cinsiyet",
+                    "type": "string",
+                    "enum": [
+                        "e",
+                        "k",
+                        "b"
+                    ]
+                },
+                "role": {
+                    "title": "Rol",
+                    "type": "string",
+                    "enum": [
+                        "owner",
+                        "employee",
+                        "salesperson",
+                        "procurement"
+                    ],
+                    "x-nullable": true
+                },
+                "e_mail": {
+                    "title": "E-posta",
+                    "type": "string",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "phone": {
+                    "title": "Telefon",
+                    "type": "string",
+                    "maxLength": 12,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "description": {
+                    "title": "Açıklama",
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "Company": {
+            "required": [
+                "description"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "name": {
+                    "title": "Ad",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "legal_name": {
+                    "title": "Ticari Unvan",
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "e_mail": {
+                    "title": "E-posta",
+                    "type": "string",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "website": {
+                    "title": "Web Sitesi",
+                    "type": "string",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "phone": {
+                    "title": "Telefon",
+                    "type": "string",
+                    "maxLength": 12,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "description": {
+                    "title": "Açıklama",
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "contacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Contact"
+                    }
+                }
+            }
+        },
+        "SimpleInventoryTransaction": {
+            "required": [
+                "location",
+                "quantity",
+                "source_id"
+            ],
+            "type": "object",
+            "properties": {
+                "location": {
+                    "title": "Location",
+                    "type": "integer"
+                },
+                "quantity": {
+                    "title": "Quantity",
+                    "type": "string",
+                    "format": "decimal"
+                },
+                "change_reason": {
+                    "title": "Change reason",
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "source_id": {
+                    "title": "Source id",
+                    "type": "integer"
+                }
+            }
+        },
+        "StockRecord": {
+            "required": [
+                "material",
+                "quantity",
+                "location"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "material": {
+                    "title": "Malzeme",
+                    "type": "integer"
+                },
+                "uom": {
+                    "title": "Birim",
+                    "type": "string",
+                    "enum": [
+                        "ADT",
+                        "KG",
+                        "G",
+                        "L",
+                        "ML",
+                        "M",
+                        "BOX",
+                        "PLT"
+                    ],
+                    "default": "ADT"
+                },
+                "quantity": {
+                    "title": "Miktar",
+                    "type": "string",
+                    "format": "decimal"
+                },
+                "location": {
+                    "title": "Konum",
+                    "type": "integer"
+                },
+                "change_reason": {
+                    "title": "Change reason",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "InventoryLocation": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "name": {
+                    "title": "İsim",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "facility": {
+                    "title": "Tesis",
+                    "type": "string",
+                    "enum": [
+                        "esenyurt"
+                    ],
+                    "default": "esenyurt"
+                },
+                "area": {
+                    "title": "Bölge",
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": -2147483648,
+                    "x-nullable": true
+                },
+                "section": {
+                    "title": "Sıra",
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": -2147483648,
+                    "x-nullable": true
+                },
+                "shelf": {
+                    "title": "Raf",
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": -2147483648,
+                    "x-nullable": true
+                },
+                "bin": {
+                    "title": "Bölme",
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "minimum": -2147483648,
+                    "x-nullable": true
+                },
+                "type": {
+                    "title": "Tipi",
+                    "type": "string",
+                    "enum": [
+                        "industrial_shelf",
+                        "exit_transit",
+                        "injection_transit",
+                        "manufacturing_transit",
+                        "resin_storage",
+                        "masterbatch",
+                        "chemical",
+                        "unlabeled",
+                        "temporary"
+                    ]
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "MaterialDemand": {
+            "required": [
+                "material",
+                "quantity",
+                "deadline",
+                "description"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "demand_no": {
+                    "title": "Talep No",
+                    "type": "string",
+                    "readOnly": true,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "material": {
+                    "title": "Malzeme",
+                    "type": "integer"
+                },
+                "quantity": {
+                    "title": "Miktar",
+                    "type": "string",
+                    "format": "decimal"
+                },
+                "uom": {
+                    "title": "Birim",
+                    "type": "string",
+                    "enum": [
+                        "ADT",
+                        "KG",
+                        "G",
+                        "L",
+                        "ML",
+                        "M",
+                        "BOX",
+                        "PLT"
+                    ]
+                },
+                "deadline": {
+                    "title": "Son Tarih",
+                    "type": "string",
+                    "format": "date"
+                },
+                "description": {
+                    "title": "Açıklama",
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                },
+                "status": {
+                    "title": "Durum",
+                    "type": "string",
+                    "enum": [
+                        "submitted",
+                        "approved",
+                        "closed"
+                    ],
+                    "readOnly": true
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "Material": {
+            "required": [
+                "description"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "name": {
+                    "title": "Ad",
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "category": {
+                    "title": "Kategori",
+                    "type": "string",
+                    "enum": [
+                        "supplied",
+                        "cardboard",
+                        "part",
+                        "good",
+                        "administrative",
+                        "pallet",
+                        "undefined"
+                    ]
+                },
+                "internal_code": {
+                    "title": "İç Kod",
+                    "type": "string",
+                    "readOnly": true,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "description": {
+                    "title": "Açıklama",
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "ProcurementOrderLine": {
+            "required": [
+                "material",
+                "quantity",
+                "quantity_received"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "po": {
+                    "title": "Po",
+                    "type": "integer"
+                },
+                "material": {
+                    "title": "Malzeme",
+                    "type": "integer"
+                },
+                "uom": {
+                    "title": "Birim",
+                    "type": "string",
+                    "enum": [
+                        "ADT",
+                        "KG",
+                        "G",
+                        "L",
+                        "ML",
+                        "M",
+                        "BOX",
+                        "PLT"
+                    ]
+                },
+                "quantity": {
+                    "title": "Quantity",
+                    "type": "number",
+                    "format": "decimal"
+                },
+                "quantity_received": {
+                    "title": "Quantity received",
+                    "type": "number",
+                    "format": "decimal"
+                },
+                "unit_price": {
+                    "title": "Unit price",
+                    "type": "number",
+                    "format": "decimal",
+                    "x-nullable": true
+                },
+                "tax_rate": {
+                    "title": "Tax rate",
+                    "type": "number",
+                    "format": "decimal",
+                    "x-nullable": true
+                },
+                "quantity_left": {
+                    "title": "Quantity left",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "total_with_tax": {
+                    "title": "Total with tax",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "total_without_tax": {
+                    "title": "Total without tax",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "ProcurementOrder": {
+            "required": [
+                "payment_term",
+                "payment_method",
+                "incoterms",
+                "due_in_days",
+                "description"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "payment_term": {
+                    "title": "Ödeme Koşulları",
+                    "type": "string",
+                    "enum": [
+                        "NET_T",
+                        "DUE_ON_RECEIPT",
+                        "CIA",
+                        "CWO",
+                        "COD",
+                        "CAD",
+                        "EOM",
+                        "T_EOM",
+                        "PROX",
+                        "PARTIAL_ADVANCE",
+                        "LC",
+                        "DC",
+                        "X_Y_NET_T",
+                        "TRADE_DISCOUNT"
+                    ]
+                },
+                "payment_method": {
+                    "title": "Ödeme Yöntemi",
+                    "type": "string",
+                    "enum": [
+                        "BANK_TRANSFER",
+                        "CASH",
+                        "CREDIT_CARD",
+                        "CHEQUE",
+                        "EFT",
+                        "PROMISSORY_NOTE",
+                        "OTHER"
+                    ]
+                },
+                "incoterms": {
+                    "title": "Teslim Şekli (Incoterms)",
+                    "type": "string",
+                    "enum": [
+                        "EXW",
+                        "FCA",
+                        "FAS",
+                        "FOB",
+                        "CFR",
+                        "CIF",
+                        "CPT",
+                        "CIP",
+                        "DAP",
+                        "DPU",
+                        "DDP"
+                    ]
+                },
+                "trade_discount": {
+                    "title": "Ticari İskonto",
+                    "type": "string",
+                    "format": "decimal"
+                },
+                "due_in_days": {
+                    "title": "Vade Günü",
+                    "type": "string"
+                },
+                "due_discount": {
+                    "title": "Vade İskontosu",
+                    "type": "string",
+                    "format": "decimal"
+                },
+                "due_discount_days": {
+                    "title": "Vade İskonto Günü",
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "invoice_accepted": {
+                    "title": "Invoice accepted",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "invoice_date": {
+                    "title": "Fatura Tebliğ Tarihi",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "last_payment_date": {
+                    "title": "Last payment date",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "description": {
+                    "title": "Açıklama",
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 1
+                },
+                "status": {
+                    "title": "Durum",
+                    "type": "string",
+                    "enum": [
+                        "draft",
+                        "submitted",
+                        "approved",
+                        "rejected",
+                        "ordered",
+                        "billed",
+                        "paid",
+                        "cancelled"
+                    ]
+                },
+                "currency": {
+                    "title": "Currency",
+                    "type": "string",
+                    "enum": [
+                        "TRY",
+                        "USD",
+                        "EUR",
+                        "GBP",
+                        "JPY",
+                        "CHF",
+                        "RUB",
+                        "CNY",
+                        "SEK",
+                        "AUD"
+                    ]
+                },
+                "delivery_address": {
+                    "title": "Teslimat Adresi",
+                    "type": "string",
+                    "maxLength": 250,
+                    "minLength": 1,
+                    "x-nullable": true
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "total_price_without_tax": {
+                    "title": "Total price without tax",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "total_price_with_tax": {
+                    "title": "Total price with tax",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "all_received": {
+                    "title": "All received",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProcurementOrderLine"
+                    }
+                },
+                "vendor": {
+                    "title": "Vendor",
+                    "type": "integer"
+                }
+            }
+        },
+        "VariableCost": {
+            "required": [
+                "material",
+                "material_internal_code",
+                "cost"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "material": {
+                    "title": "Malzeme",
+                    "type": "integer"
+                },
+                "material_internal_code": {
+                    "title": "Material internal code",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "cost": {
+                    "title": "Cost",
+                    "type": "number",
+                    "format": "decimal"
+                },
+                "uom": {
+                    "title": "Birim",
+                    "type": "string",
+                    "enum": [
+                        "ADT",
+                        "KG",
+                        "G",
+                        "L",
+                        "ML",
+                        "M",
+                        "BOX",
+                        "PLT"
+                    ]
+                },
+                "source_type": {
+                    "title": "Source type",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "procurement_order": {
+                    "title": "Satınalma Siparişi",
+                    "type": "integer",
+                    "readOnly": true,
+                    "x-nullable": true
+                },
+                "user": {
+                    "title": "Kullanıcı",
+                    "type": "integer",
+                    "x-nullable": true
+                },
+                "created_by": {
+                    "title": "Created by",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "source_object": {
+                    "title": "Source object",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        }
+    }
+}

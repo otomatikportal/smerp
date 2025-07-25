@@ -1,13 +1,15 @@
+from django.core.serializers import get_serializer
 from rest_framework import viewsets, status, filters, pagination
 from django.db import transaction
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import exception_handler
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.decorators import action
-from inventory.models import StockRecord
-from inventory.serializers.stock_record_serializers import StockRecordSerializer
 from safedelete.config import HARD_DELETE
+from django.conf import settings
+from sales.models import VariableCost
+from sales.serializers.variable_cost_serializers import VariableCostSerializer
 
 class CustomDjangoModelPermissions(DjangoModelPermissions):
     perms_map = {
@@ -19,7 +21,7 @@ class CustomDjangoModelPermissions(DjangoModelPermissions):
         'PATCH': ['%(app_label)s.change_%(model_name)s'],
         'DELETE': ['%(app_label)s.delete_%(model_name)s'],
     }
-
+    
 class CustomPagination(pagination.PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
@@ -28,37 +30,50 @@ class CustomPagination(pagination.PageNumberPagination):
     def get_paginated_response(self, data):
         return Response({
             "status": "success",
-            "message": "Stock records retrieved successfully",
+            "message": "Variable Cost records retrieved successfully",
             "count": self.page.paginator.count,
             "next": self.get_next_link(),
             "previous": self.get_previous_link(),
             "results": data
         })
-
-class StockRecordViewSet(viewsets.ModelViewSet):
-    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
-    queryset = StockRecord.objects.all().order_by('-id')
-    serializer_class = StockRecordSerializer
+        
+class VariableCostViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'delete']
+    queryset = VariableCost.objects.all().order_by('-id')
+    serializer_class = VariableCostSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['material', 'uom', 'location']
     search_fields = ['material__name', 'material__description', 'material__internal_code']
-    ordering_fields = ['id', 'material', 'uom', 'quantity', 'location']
+    ordering_fields = ['cost', 'id']
     pagination_class = CustomPagination
     permission_classes = [CustomDjangoModelPermissions]
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.action in ['recover', 'delete']:
+            return VariableCost.objects.all_with_deleted()
+            
+        return queryset
 
     def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        if isinstance(response.data, dict) and "results" in response.data:
-            response.data["status"] = "success"
-            response.data["message"] = "Stock Records retrieved successfully"
-            return response
+        queryset = self.filter_queryset(self.get_queryset())
+        print('triggered')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True, context={**self.get_serializer_context(), 'action': 'list'})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True, context={**self.get_serializer_context(), 'action': 'list'})
+        return Response({
+            "status": "success",
+            "message": "Variable cost records retrieved successfully",
+            "results": serializer.data
+        }, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, context={**self.get_serializer_context(), 'action': 'retrieve'})
         return Response({
             "status": "success",
-            "message": "Stock record retrieved successfully",
+            "message": "Variable cost record retrieved successfully",
             "result": serializer.data
         }, status=status.HTTP_200_OK)
 
@@ -67,23 +82,11 @@ class StockRecordViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
-        if hasattr(instance, '_change_reason') and not getattr(instance, '_change_reason', None):
-            instance._change_reason = "Created via API"
-            instance.save()
         return Response({
             "status": "success",
-            "message": "Stock record created successfully",
+            "message": "Variable cost record created successfully",
             "result": serializer.data
         }, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def partial_update(self, request, *args, **kwargs):
-        response = super().partial_update(request, *args, **kwargs)
-        return Response({
-            "status": "success",
-            "message": "Stock record updated successfully",
-            "result": response.data
-        }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
@@ -92,7 +95,7 @@ class StockRecordViewSet(viewsets.ModelViewSet):
         instance.delete()
         return Response({
             "status": "success",
-            "message": "Stock record deleted successfully"
+            "message": "Variable cost record deleted successfully"
         }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='recover')
@@ -104,15 +107,9 @@ class StockRecordViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response({
             "status": "success",
-            "message": "Stock record recovered successfully",
+            "message": "Variable cost record recovered successfully",
             "result": serializer.data
         }, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        return Response({
-            "status": "error",
-            "message": "PUT method is not allowed for this resource. Use PATCH instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
@@ -123,7 +120,8 @@ class StockRecordViewSet(viewsets.ModelViewSet):
             instance.delete()
         return Response({
             "status": "success",
-            "message": "Stock record hard deleted successfully"
+            "message": "Variable cost record hard deleted successfully"
         }, status=status.HTTP_200_OK)
 
+        
 

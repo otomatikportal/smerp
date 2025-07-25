@@ -15,7 +15,6 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         model = ProcurementOrder
         fields = [
             'id',
-            'vendor',
             'payment_term',
             'payment_method',
             'incoterms',
@@ -30,12 +29,13 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
             'status',
             'currency',
             'delivery_address',
-            'lines',
             'created_by',
             'created_at',
             'total_price_without_tax',
             'total_price_with_tax',
             'all_received',
+            'lines',
+            'vendor',
         ]
         read_only_fields = [
             'created_by', 'created_at', 'total_price_without_tax', 'total_price_with_tax', 'all_received', 'last_payment_date', 'invoice_accepted'
