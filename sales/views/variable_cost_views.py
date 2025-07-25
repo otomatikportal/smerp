@@ -81,11 +81,17 @@ class VariableCostViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
+        validated_data = serializer.validated_data
+
+
+        if not validated_data.get('procurement_order'):
+            validated_data['user'] = request.user
+
+        instance = serializer.save(**validated_data)
         return Response({
             "status": "success",
             "message": "Variable cost record created successfully",
-            "result": serializer.data
+            "result": self.get_serializer(instance).data
         }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], url_path='delete')

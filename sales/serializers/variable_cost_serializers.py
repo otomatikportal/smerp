@@ -3,7 +3,7 @@ from sales.models import VariableCost
 from core.serializers.material_serializers import MaterialSerializer
 
 class VariableCostSerializer(serializers.ModelSerializer):
-    procurement_order = serializers.SerializerMethodField(read_only = True)
+    procurement_order = serializers.SerializerMethodField(required = False, read_only= True)
     cost = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False)
     material_internal_code = serializers.CharField(source='material.internal_code', read_only=True)
     created_at = serializers.SerializerMethodField()
