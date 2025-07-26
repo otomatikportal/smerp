@@ -148,7 +148,7 @@ class ProcurementOrder(SafeDeleteModel):
         # Sum of unit_price * quantity for all lines, minus trade_discount and due_discount
         subtotal = sum(
             (line.unit_price * line.quantity)
-            for line in self.lines.all()
+            for line in self.lines.all() # type: ignore
             if line.unit_price is not None and line.quantity is not None
         )
         discount = subtotal * (self.trade_discount + self.due_discount)
@@ -159,14 +159,14 @@ class ProcurementOrder(SafeDeleteModel):
         # Sum of (unit_price * quantity) * (1 + tax_rate) for all lines, minus discounts
         subtotal = sum(
             (line.unit_price * line.quantity)
-            for line in self.lines.all()
+            for line in self.lines.all() # type: ignore
             if line.unit_price is not None and line.quantity is not None
         )
         discount = subtotal * (self.trade_discount + self.due_discount)
         subtotal_after_discount = subtotal - discount
         tax_total = sum(
             (line.unit_price * line.quantity * line.tax_rate)
-            for line in self.lines.all()
+            for line in self.lines.all() # type: ignore
             if line.unit_price is not None and line.quantity is not None and line.tax_rate is not None
         )
         return subtotal_after_discount + tax_total
@@ -174,7 +174,7 @@ class ProcurementOrder(SafeDeleteModel):
     @property
     def all_received(self):
         """Returns True if all order lines have no missing quantity (quantity_left <= 0)."""
-        return all(line.quantity_left <= 0 for line in self.lines.all())
+        return all(line.quantity_left <= 0 for line in self.lines.all()) # type: ignore
     
     @property
     def invoice_accepted(self):
