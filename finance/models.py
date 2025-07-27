@@ -19,7 +19,7 @@ class Account(SafeDeleteModel):
     ]
     
     ACCOUNT_CATEGORIES = [
-        ('cash', _('Nakit ve Nakit Benzerleri')),
+        ('current_assets', _('Dönen Varlıklar')),
         ('accounts_receivable', _('Alacaklar')),
         ('inventory', _('Stok')),
         ('accounts_payable', _('Borçlar')),
@@ -86,19 +86,14 @@ class AccountMovement(SafeDeleteModel):
     # Core fields
     account = models.ForeignKey('Account', on_delete=models.PROTECT, related_name='movements', verbose_name=_('Hesap'))
     movement_type = models.CharField(_('Hareket Türü'), max_length=10, choices=MOVEMENT_TYPES, null=False, blank=False)
-    amount = models.DecimalField(_('Tutar'), max_digits=15, decimal_places=2, null=False, blank=False,
-                               validators=[MinValueValidator(Decimal('0.01'))])
+    amount = models.DecimalField(_('Tutar'), max_digits=15, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
     description = models.TextField(_('Açıklama'), max_length=500, null=False, blank=False)
     history = HistoricalRecords()
     
     class Meta:
         verbose_name = _('Hesap Hareketi')
         verbose_name_plural = _('Hesap Hareketleri')
-        ordering = ['-transaction_date', '-id']
-        indexes = [
-            models.Index(fields=['account', 'transaction_date']),
-            models.Index(fields=['transaction_date']),
-        ]
-    
+        ordering = ['-id']
+        
     def __str__(self):
         return f"{self.account.account_name} - {self.amount} TL"

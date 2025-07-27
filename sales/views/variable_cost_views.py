@@ -51,12 +51,10 @@ class VariableCostViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         if self.action in ['recover', 'delete']:
             return VariableCost.objects.all_with_deleted()
-            
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        print('triggered')
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True, context={**self.get_serializer_context(), 'action': 'list'})
@@ -79,15 +77,13 @@ class VariableCostViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
-
-
-        if not validated_data.get('procurement_order'):
-            validated_data['user'] = request.user
-
+        validated_data['user'] = request.user
         instance = serializer.save(**validated_data)
+        
         return Response({
             "status": "success",
             "message": "Variable cost record created successfully",
