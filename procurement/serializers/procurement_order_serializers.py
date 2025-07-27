@@ -63,7 +63,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         
         # Reset fields that shouldn't be set for certain payment terms
         payment_term = validated_data.get('payment_term')
-        if payment_term not in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+        if payment_term not in ['NET_T', 'PARTIAL_ADVANCE']:
             validated_data['due_discount'] = Decimal('0.000')
             validated_data['due_discount_days'] = None
 
@@ -100,7 +100,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         errors = {}
         
         # Validate payment term requirements
-        if payment_term in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+        if payment_term in ['NET_T', 'PARTIAL_ADVANCE']:
             if not due_in_days:
                 errors['due_in_days'] = _('Bu vade tipi için vade günü gereklidir.')
         else:
@@ -109,13 +109,6 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
                 errors['due_discount'] = _('Bu vade tipi için vade iskontosu girilemez.')
             if due_discount_days is not None:
                 errors['due_discount_days'] = _('Bu vade tipi için vade iskonto günü girilemez.')
-        
-        # Special validation for X_Y_NET_T
-        if payment_term == 'X_Y_NET_T':
-            if not due_discount or due_discount == Decimal('0.000'):
-                errors['due_discount'] = _('İskontolu net vade için vade iskontosu gereklidir.')
-            if not due_discount_days:
-                errors['due_discount_days'] = _('İskontolu net vade için vade iskonto günü gereklidir.')
         
         if errors:
             raise serializers.ValidationError(errors)
@@ -164,7 +157,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         payment_term = validated_data.get('payment_term', instance.payment_term)
         errors = {}
         
-        if payment_term not in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+        if payment_term not in ['NET_T', 'PARTIAL_ADVANCE']:
             if validated_data.get('due_discount') is not None:
                 errors['due_discount'] = _('Bu vade tipi için vade iskontosu girilemez.')
             if validated_data.get('due_discount_days') is not None:

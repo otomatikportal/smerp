@@ -53,16 +53,10 @@ class ProcurementOrder(SafeDeleteModel):
         ("NET_T", "Net Vade"),
         ("DUE_ON_RECEIPT", "Teslimde Ödeme"),
         ("CIA", "Peşin Ödeme"),
-        ("CWO", "Siparişle Birlikte Ödeme"),
         ("COD", "Teslimde Nakit"),
-        ("CAD", "Belge Karşılığı Ödeme"),
         ("EOM", "Ay Sonu"),
-        ("T_EOM", "Ay sonundan T gün sonra"),
-        ("PROX", "Proksimo"),
         ("PARTIAL_ADVANCE", "Kısmi Peşin Ödeme"),
         ("LC", "Akreditif"),
-        ("DC", "Belge Tahsilatı"),
-        ("X_Y_NET_T", "X/Y Net Vade"),
         ("TRADE_DISCOUNT", "Ticari İskonto"),
     ]
     
@@ -193,18 +187,11 @@ class ProcurementOrder(SafeDeleteModel):
             next_month = d.replace(day=28) + timedelta(days=4)
             return next_month - timedelta(days=next_month.day)
 
-        if term == "T_EOM":
-            # Next month's end, then add due_days
-            next_month = (base_date.replace(day=1) + timedelta(days=32)).replace(day=1)
-            end_of_next_month = month_end(next_month)
-            return end_of_next_month + timedelta(days=due_days)
-        elif term == "X_Y_NET_T":
-            return base_date + timedelta(days=due_days)
-        elif term == "PARTIAL_ADVANCE":
-            return base_date + timedelta(days=due_days)
-        elif term == "EOM":
+        if term == "EOM":
             return month_end(base_date)
         elif term == "NET_T":
+            return base_date + timedelta(days=due_days)
+        elif term == "PARTIAL_ADVANCE":
             return base_date + timedelta(days=due_days)
         else:
             return None
@@ -242,15 +229,9 @@ class ProcurementOrder(SafeDeleteModel):
                 if not getattr(self, field, None):
                     errors[field] = _("'%(field)s' alanı gereklidir.") % {'field': field}
 
-            if self.payment_term in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+            if self.payment_term in ['NET_T', 'PARTIAL_ADVANCE']:
                 if not getattr(self, 'due_in_days', None):
                     errors['due_in_days'] = _('Bu vade tipi için vade günü gereklidir.')
-
-            if self.payment_term == 'X_Y_NET_T':
-                if not getattr(self, 'due_discount', None):
-                    errors['due_discount'] = _('İskontolu net vade için vade iskontosu gereklidir.')
-                if not getattr(self, 'due_discount_days', None):
-                    errors['due_discount_days'] = _('İskontolu net vade için vade iskonto günü gereklidir.')
         
         elif new_status == 'billed':
             if not getattr(self, 'invoice_date', None):
@@ -328,6 +309,12 @@ class ProcurementOrderLine(SafeDeleteModel):
                 errors['quantity'] = 'Miktar tam sayı olmalıdır.'
             if self.quantity_received is not None and self.quantity_received % 1 != 0:
                 errors['quantity_received'] = 'Miktar tam sayı olmalıdır.'
+        
+        # Validate quantity_received doesn't exceed quantity
+        if self.quantity is not None and self.quantity_received is not None:
+            if self.quantity_received > self.quantity:
+                errors['quantity_received'] = _('Alınan miktar, sipariş edilen miktarı aşamaz.')
+        
         if errors:
             raise ValidationError(errors)
 
