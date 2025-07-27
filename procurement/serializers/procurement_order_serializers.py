@@ -4,6 +4,7 @@ from procurement.models import ProcurementOrder, ProcurementOrderLine
 from procurement.serializers.procurement_order_line_serializers import ProcurementOrderLineSerializer
 from core.models import Company
 from core.serializers.company_serializers import CompanySerializer
+from django.utils.translation import gettext_lazy as _
 
 class ProcurementOrderSerializer(serializers.ModelSerializer):
     lines = ProcurementOrderLineSerializer(many=True, required=False)
@@ -57,32 +58,17 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         return ret
 
     def create(self, validated_data):
+        # Remove status from validated_data (orders always start as 'draft')
         validated_data.pop('status', None)
+        
+        # Reset fields that shouldn't be set for certain payment terms
         payment_term = validated_data.get('payment_term')
-        errors = {}
-
-        if payment_term in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
-            if not validated_data.get('due_in_days'):
-                errors['due_in_days'] = 'Bu vade tipi için vade günü gereklidir.'
-
-        else:
-            # If payment_term is not in the allowed list, do not allow due_discount or due_discount_days
-            if validated_data.get('due_discount') is not None:
-                errors['due_discount'] = 'Bu vade tipi için vade iskontosu girilemez.'
-            if validated_data.get('due_discount_days') is not None:
-                errors['due_discount_days'] = 'Bu vade tipi için vade iskonto günü girilemez.'
-
-        if payment_term == 'X_Y_NET_T':
-            if not validated_data.get('due_discount'):
-                errors['due_discount'] = 'İskontolu net vade için vade iskontosu gereklidir.'
-            if not validated_data.get('due_discount_days'):
-                errors['due_discount_days'] = 'İskontolu net vade için vade iskonto günü gereklidir.'
-        if errors:
-            raise serializers.ValidationError(errors)
+        if payment_term not in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+            validated_data['due_discount'] = Decimal('0.000')
+            validated_data['due_discount_days'] = None
 
         lines_data = validated_data.pop('lines', None)
         order = ProcurementOrder.objects.create(**validated_data)
-
 
         if lines_data:
             for line_data in lines_data:
@@ -90,6 +76,52 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
                 ProcurementOrderLineSerializer().create(line_data)
         return order
 
+    def validate_payment_term(self, value):
+        """Validate payment term field"""
+        return value
+    
+    def validate_due_discount(self, value):
+        """Validate due_discount based on payment_term"""
+        # This will be cross-validated in validate() method
+        return value
+    
+    def validate_due_discount_days(self, value):
+        """Validate due_discount_days based on payment_term"""
+        # This will be cross-validated in validate() method
+        return value
+    
+    def validate(self, attrs):
+        """Cross-field validation for payment terms"""
+        payment_term = attrs.get('payment_term')
+        due_in_days = attrs.get('due_in_days')
+        due_discount = attrs.get('due_discount')
+        due_discount_days = attrs.get('due_discount_days')
+        
+        errors = {}
+        
+        # Validate payment term requirements
+        if payment_term in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+            if not due_in_days:
+                errors['due_in_days'] = _('Bu vade tipi için vade günü gereklidir.')
+        else:
+            # If payment_term is not in the allowed list, do not allow due_discount or due_discount_days
+            if due_discount is not None and due_discount != Decimal('0.000'):
+                errors['due_discount'] = _('Bu vade tipi için vade iskontosu girilemez.')
+            if due_discount_days is not None:
+                errors['due_discount_days'] = _('Bu vade tipi için vade iskonto günü girilemez.')
+        
+        # Special validation for X_Y_NET_T
+        if payment_term == 'X_Y_NET_T':
+            if not due_discount or due_discount == Decimal('0.000'):
+                errors['due_discount'] = _('İskontolu net vade için vade iskontosu gereklidir.')
+            if not due_discount_days:
+                errors['due_discount_days'] = _('İskontolu net vade için vade iskonto günü gereklidir.')
+        
+        if errors:
+            raise serializers.ValidationError(errors)
+        
+        return attrs
+    
     def get_created_by(self, obj):
         first_history = obj.history.order_by('history_date').first()
         if first_history and hasattr(first_history, 'history_user') and first_history.history_user:
@@ -103,150 +135,51 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         return None
 
     def update(self, instance, validated_data):
-       
-        action = self.context.get('action')
+        # Remove status from validated_data if present (status changes should use dedicated endpoint)
         validated_data.pop('status', None)
         
-        STATUS = [
-            'draft', 'submitted', 'approved', 'rejected', 'ordered', 'billed', 'paid', 'cancelled'
-        ]
-
-        if action and action.startswith('set_status_'):
-            new_status = action.replace('set_status_', '')
+        # Handle special cases for non-draft statuses
+        if instance.status in ['ordered', 'approved']:
+            # Only allow invoice_date updates for ordered/approved orders
+            allowed_fields = ['invoice_date']
+            non_allowed_updates = [field for field in validated_data.keys() if field not in allowed_fields]
+            if non_allowed_updates:
+                status_display = dict(instance.STATUS).get(instance.status, instance.status)
+                raise serializers.ValidationError({
+                    'fields': _('%(status)s durumundaki siparişlerde sadece fatura tarihi güncellenebilir. Diğer işlemler için durum değiştirme endpoint\'lerini kullanın.') % {'status': status_display}
+                })
             
-            errors = {}
-            if new_status == 'draft':
-                
-                if instance.status not in ['submitted', 'rejected', 'cancelled']:
-                    errors['status'] = 'Geçerli durumda değil'
-            
-            elif new_status == 'submitted':
-                if instance.lines.count() <= 0:
-                    errors['lines'] = 'Satın almanın içinde malzeme yok'
-                # Check for missing unit_price in any line
-                missing_price_lines = [line for line in instance.lines.all() if line.unit_price is None]
-                if missing_price_lines:
-                    errors['lines'] = 'Satırların bir veya daha fazlasında birim fiyat eksik.'
-
-                if instance.status != 'draft':
-                    errors['status'] = 'Geçerli durumda değil'
-                    
-                required_fields = ['payment_term', 'vendor', 'payment_method', 'incoterms', 'description', 'currency', 'delivery_address']
-                for field in required_fields:
-                    if not getattr(instance, field, None):
-                        errors[field] = f"'{field}' alanı gereklidir."
-
-                if instance.payment_term in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
-                    if not getattr(instance, 'due_in_days', None):
-                        errors['due_in_days'] = 'Bu vade tipi için vade günü gereklidir.'
-
-                if instance.payment_term == 'X_Y_NET_T':
-                    if not getattr(instance, 'due_discount', None):
-                        errors['due_discount'] = 'İskontolu net vade için vade iskontosu gereklidir.'
-                    if not getattr(instance, 'due_discount_days', None):
-                        errors['due_discount_days'] = 'İskontolu net vade için vade iskonto günü gereklidir.'
-                
-                        
-            elif new_status in ['approved', 'rejected']:
-                
-                if instance.status not in ['submitted', 'approved', 'rejected']:
-                    errors['status'] = 'Geçerli durumda değil'
-                    
-            elif new_status == 'cancelled':
-                
-                if instance.status not in ['submitted', 'approved', 'ordered', 'draft']:         
-                    errors['status'] = 'Bu durumda iptal edilemez, yöneticiye danışın'
-                    
-            elif new_status == 'ordered':
-                
-                if instance.status != 'approved':
-                    errors['status'] = 'Onaylanmadan sipariş verilemez'
-            
-            elif new_status == 'billed':
-                if instance.status != 'ordered':
-                    errors['status'] = 'Sipariş verilmeden fatura girilemez'
-                    
-                invoice_date = validated_data.get('invoice_date')
-                if not invoice_date and not getattr(instance, 'invoice_date', None):
-                    errors['invoice_date'] = "Faturalandı durumunda 'invoice_date' alanı gereklidir."
-                
-                if invoice_date:
-                    instance.invoice_date = invoice_date
-                    
-            elif new_status == 'paid':
-                
-                if instance.status != 'billed':
-                    errors['status'] = 'Fatura tarihi girilmeden ödendi bilgisi verilemez'
-                
-            if errors:
-                raise serializers.ValidationError(errors)
-            instance.status = new_status
+            # Simple update for allowed fields
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
             instance.save()
             return instance
-
-
         
-        allowed_fields = [
-            'payment_term', 'payment_method', 'incoterms', 'trade_discount',
-            'due_in_days', 'due_discount', 'due_discount_days',
-            'description', 'currency', 'delivery_address', 'vendor',
-        ]
-        status = instance.status
-        if status == 'draft':
-            # Only allow allowed_fields to be changed
-            payment_term = validated_data.get('payment_term', instance.payment_term)
-            errors = {}
-            if payment_term not in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
-                if validated_data.get('due_discount') is not None:
-                    errors['due_discount'] = 'Bu vade tipi için vade iskontosu girilemez.'
-                if validated_data.get('due_discount_days') is not None:
-                    errors['due_discount_days'] = 'Bu vade tipi için vade iskonto günü girilemez.'
-                if 'due_discount' not in validated_data:
-                    instance.due_discount = Decimal(0.000)
-                if 'due_discount_days' not in validated_data:
-                    instance.due_discount_days = None
-            if errors:
-                raise serializers.ValidationError(errors)
-            for field in allowed_fields:
-                if field in validated_data:
-                    setattr(instance, field, validated_data[field])
-            instance.save()
-            return instance
-        elif status == 'submitted':
-            # No field updates allowed except via status change
-            non_status_updates = [field for field in allowed_fields if field in validated_data]
-            if non_status_updates:
-                raise serializers.ValidationError({'fields': 'Sunuldu durumunda sadece status değiştirilebilir.'})
-            return instance
-        elif status == 'approved':
-            non_status_updates = [field for field in allowed_fields if field in validated_data]
-            if non_status_updates:
-                raise serializers.ValidationError({'fields': 'Onaylandı durumunda sadece status değiştirilebilir.'})
-            return instance
-        elif status == 'rejected':
-            non_status_updates = [field for field in allowed_fields if field in validated_data]
-            if non_status_updates:
-                raise serializers.ValidationError({'fields': 'Reddedildi durumunda sadece status değiştirilebilir.'})
-            return instance
-        elif status == 'ordered':
-            non_status_updates = [field for field in allowed_fields if field in validated_data]
-            if non_status_updates:
-                raise serializers.ValidationError({'fields': 'Sipariş verildi durumunda sadece status değiştirilebilir.'})
-            return instance
-        elif status == 'billed':
-            non_status_updates = [field for field in allowed_fields if field in validated_data]
-            if non_status_updates:
-                raise serializers.ValidationError({'fields': 'Faturalandı durumunda sadece status değiştirilebilir.'})
-            return instance
-        elif status == 'paid':
-            non_status_updates = [field for field in allowed_fields if field in validated_data]
-            if non_status_updates:
-                raise serializers.ValidationError({'fields': 'Ödendi durumunda sadece status değiştirilebilir.'})
-            return instance
-        elif status == 'cancelled':
-            non_status_updates = [field for field in allowed_fields if field in validated_data]
-            if non_status_updates:
-                raise serializers.ValidationError({'fields': 'İptal edildi durumunda sadece status değiştirilebilir.'})
-            return instance
-        else:
-            raise serializers.ValidationError({'status': f"Bilinmeyen durum: {status}"})
+        elif instance.status != 'draft':
+            raise serializers.ValidationError({
+                'status': _('Sadece taslak siparişler güncellenebilir. Diğer işlemler için durum değiştirme endpoint\'lerini kullanın.')
+            })
+        
+        # Handle payment term validation for draft orders (keep this business rule)
+        payment_term = validated_data.get('payment_term', instance.payment_term)
+        errors = {}
+        
+        if payment_term not in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+            if validated_data.get('due_discount') is not None:
+                errors['due_discount'] = _('Bu vade tipi için vade iskontosu girilemez.')
+            if validated_data.get('due_discount_days') is not None:
+                errors['due_discount_days'] = _('Bu vade tipi için vade iskonto günü girilemez.')
+            # Reset these fields if payment term doesn't support them
+            if 'due_discount' not in validated_data:
+                validated_data['due_discount'] = Decimal('0.000')
+            if 'due_discount_days' not in validated_data:
+                validated_data['due_discount_days'] = None
+        
+        if errors:
+            raise serializers.ValidationError(errors)
+        
+        # Simple update for draft orders
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance

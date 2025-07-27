@@ -209,6 +209,96 @@ class ProcurementOrder(SafeDeleteModel):
         else:
             return None
     
+    def can_transition_to(self, new_status, user=None):
+        """Check if transition to new_status is allowed from current status"""
+        transitions = {
+            'draft': ['submitted'],
+            'submitted': ['approved', 'rejected', 'cancelled', 'draft'],
+            'approved': ['ordered', 'rejected', 'cancelled'],
+            'rejected': ['draft'],
+            'ordered': ['billed', 'cancelled'],
+            'billed': ['paid'],
+            'paid': [],
+            'cancelled': []
+        }
+        
+        return new_status in transitions.get(self.status, [])
+
+    def validate_status_requirements(self, new_status):
+        """Validate business rules for status transition"""
+        errors = {}
+        
+        if new_status == 'submitted':
+            if self.lines.count() <= 0:
+                errors['lines'] = _('Satın almanın içinde malzeme yok')
+            
+            # Check for missing unit_price in any line
+            missing_price_lines = [line for line in self.lines.all() if line.unit_price is None]
+            if missing_price_lines:
+                errors['lines'] = _('Satırların bir veya daha fazlasında birim fiyat eksik.')
+            
+            required_fields = ['payment_term', 'vendor', 'payment_method', 'incoterms', 'description', 'currency', 'delivery_address']
+            for field in required_fields:
+                if not getattr(self, field, None):
+                    errors[field] = _("'%(field)s' alanı gereklidir.") % {'field': field}
+
+            if self.payment_term in ['NET_T', 'T_EOM', 'PARTIAL_ADVANCE', 'X_Y_NET_T']:
+                if not getattr(self, 'due_in_days', None):
+                    errors['due_in_days'] = _('Bu vade tipi için vade günü gereklidir.')
+
+            if self.payment_term == 'X_Y_NET_T':
+                if not getattr(self, 'due_discount', None):
+                    errors['due_discount'] = _('İskontolu net vade için vade iskontosu gereklidir.')
+                if not getattr(self, 'due_discount_days', None):
+                    errors['due_discount_days'] = _('İskontolu net vade için vade iskonto günü gereklidir.')
+        
+        elif new_status == 'billed':
+            if not getattr(self, 'invoice_date', None):
+                errors['invoice_date'] = _("Faturalandı durumunda 'invoice_date' alanı gereklidir.")
+        
+        return errors
+
+    def change_status(self, new_status, user=None, **kwargs):
+        """Safely change status with all validations"""
+        # Check if transition is allowed
+        if not self.can_transition_to(new_status, user):
+            current_display = dict(self.STATUS).get(self.status, self.status)
+            new_display = dict(self.STATUS).get(new_status, new_status)
+            raise ValidationError(_("%(current)s durumundan %(new)s durumuna geçiş yapılamaz") % {
+                'current': current_display, 
+                'new': new_display
+            })
+        
+        # Validate business requirements
+        errors = self.validate_status_requirements(new_status)
+        if errors:
+            raise ValidationError(errors)
+        
+        # Handle special cases
+        if new_status == 'billed' and 'invoice_date' in kwargs:
+            self.invoice_date = kwargs['invoice_date']
+        
+        # Change status and save
+        self.status = new_status
+        self.save()
+        
+        return self
+
+    def get_allowed_transitions(self, user=None):
+        """Get list of allowed status transitions for current user"""
+        transitions = {
+            'draft': ['submitted'],
+            'submitted': ['approved', 'rejected', 'cancelled', 'draft'],
+            'approved': ['ordered', 'rejected', 'cancelled'],
+            'rejected': ['draft'],
+            'ordered': ['billed', 'cancelled'],
+            'billed': ['paid'],
+            'paid': [],
+            'cancelled': []
+        }
+        
+        return transitions.get(self.status, [])
+    
 class ProcurementInvoice(SafeDeleteModel):
     _safedelete_policy = SOFT_DELETE
     invoice_number = models.CharField(_('Fatura No'), max_length=50, null=False, blank=False)

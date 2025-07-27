@@ -8,6 +8,8 @@ from procurement.serializers.procurement_order_serializers import ProcurementOrd
 from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 class CustomDjangoModelPermissions(DjangoModelPermissions):
     perms_map = {
@@ -116,60 +118,64 @@ class ProcurementOrderViewSet(viewsets.ModelViewSet):
             "message": "Order hard deleted successfully"
         }, status=status.HTTP_200_OK)
         
-    @action(detail=True, methods=['patch'], url_path='set-status-draft', permission_classes=[DjangoModelPermissions])
+    @action(detail=True, methods=['patch'], url_path='set-status')
     @transaction.atomic
-    def set_status_draft(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_draft', 'submit_procurementorder', 'Order drafted successfully')
-
-    @action(detail=True, methods=['patch'], url_path='set-status-submitted', permission_classes=[DjangoModelPermissions])
-    @transaction.atomic
-    def set_status_submitted(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_submitted', 'submit_procurementorder', 'Order submitted successfully')
-
-    @action(detail=True, methods=['patch'], url_path='set-status-approved', permission_classes=[DjangoModelPermissions])
-    @transaction.atomic
-    def set_status_approved(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_approved', 'approve_procurementorder', 'Order approved successfully')
-
-    @action(detail=True, methods=['patch'], url_path='set-status-rejected', permission_classes=[DjangoModelPermissions])
-    @transaction.atomic
-    def set_status_rejected(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_rejected', 'reject_procurementorder', 'Order rejected successfully')
-
-    @action(detail=True, methods=['patch'], url_path='set-status-ordered', permission_classes=[DjangoModelPermissions])
-    @transaction.atomic
-    def set_status_ordered(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_ordered', 'submit_procurementorder', 'Order set to ordered successfully')
-
-    @action(detail=True, methods=['patch'], url_path='set-status-billed', permission_classes=[DjangoModelPermissions])
-    @transaction.atomic
-    def set_status_billed(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_billed', 'bill_procurementorder', 'Order billed successfully')
-
-    @action(detail=True, methods=['patch'], url_path='set-status-paid', permission_classes=[DjangoModelPermissions])
-    @transaction.atomic
-    def set_status_paid(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_paid', 'bill_procurementorder', 'Order paid successfully')
-
-    @action(detail=True, methods=['patch'], url_path='set-status-cancelled', permission_classes=[DjangoModelPermissions])
-    @transaction.atomic
-    def set_status_cancelled(self, request, *args, **kwargs):
-        return self._set_status_action(request, 'set_status_cancelled', 'cancel_procurementorder', 'Order cancelled successfully')
-
-    @transaction.atomic
-    def _set_status_action(self, request, action_flag, permission_codename, success_message):
+    def change_status(self, request, *args, **kwargs):
         instance = self.get_object()
-        self.check_object_permissions(request, instance)
-        if not request.user.has_perm(f'procurement.{permission_codename}'):
+        new_status = request.data.get('status')
+        
+        if not new_status:
             return Response({
                 "status": "error",
-                "message": "Permission denied for this status change."
+                "message": _("Durum alanı gereklidir")
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check permissions based on status
+        permission_map = {
+            'submitted': 'submit_procurementorder',
+            'approved': 'approve_procurementorder',
+            'rejected': 'approve_procurementorder',
+            'ordered': 'order_procurementorder',
+            'billed': 'bill_procurementorder',
+            'paid': 'bill_procurementorder',
+            'cancelled': 'cancel_procurementorder',
+        }
+        
+        required_permission = permission_map.get(new_status)
+        if required_permission and not request.user.has_perm(f'procurement.{required_permission}'):
+            return Response({
+                "status": "error",
+                "message": _("Bu durum değişikliği için yetkiniz bulunmamaktadır.")
             }, status=status.HTTP_403_FORBIDDEN)
-        serializer = self.get_serializer(instance, data=request.data, partial=True, context={'action': action_flag})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        
+        try:
+            # Use model method for status change
+            kwargs_for_status = {}
+            if new_status == 'billed' and 'invoice_date' in request.data:
+                kwargs_for_status['invoice_date'] = request.data['invoice_date']
+            
+            instance.change_status(new_status, user=request.user, **kwargs_for_status)
+            
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": "success",
+                "message": _("Sipariş durumu %(status)s olarak başarıyla değiştirildi") % {'status': new_status},
+                "result": serializer.data
+            }, status=status.HTTP_200_OK)
+            
+        except ValidationError as e:
+            return Response({
+                "status": "error",
+                "message": _("Doğrulama başarısız"),
+                "errors": e.message_dict if hasattr(e, 'message_dict') else str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['get'], url_path='allowed-transitions')
+    def allowed_transitions(self, request, *args, **kwargs):
+        instance = self.get_object()
+        transitions = instance.get_allowed_transitions(user=request.user)
         return Response({
             "status": "success",
-            "message": success_message,
-            "result": serializer.data
-        }, status=status.HTTP_200_OK)
+            "current_status": instance.status,
+            "allowed_transitions": transitions
+        })
