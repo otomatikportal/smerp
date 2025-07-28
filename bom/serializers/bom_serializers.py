@@ -58,16 +58,19 @@ class BomSerializer(serializers.ModelSerializer):
     def get_latest_cost(self, obj):
         return obj.latest_cost
     
+    
+    # Intentional bulk create modification to 
+    # not trigger variable cost creation multiple timesé
     def create(self, validated_data):
         lines_data = validated_data.pop('lines', [])
         bom = Bom.objects.create(**validated_data)
         
-        # Prepare BomLine objects for bulk creation (no signals)
         bom_lines = []
         for line_data in lines_data:
             line_data['bom'] = bom.pk
             line_serializer = BomLineSerializer(data=line_data)
             if line_serializer.is_valid(raise_exception=True):
+                
                 # Create object but don't save yet
                 bom_line = BomLine(
                     bom=bom,
@@ -76,27 +79,22 @@ class BomSerializer(serializers.ModelSerializer):
                     uom=line_data['uom']
                 )
                 bom_lines.append(bom_line)
-        
-        # Bulk create all lines at once (no individual signals)
+                
         if bom_lines:
             BomLine.objects.bulk_create(bom_lines)
-            # Manually trigger signal once after all lines are created
             from bom.signals import create_variable_cost_for_bom_instance
             create_variable_cost_for_bom_instance(bom)
         
         return bom
     
     def to_representation(self, instance):
-        
         representation = super().to_representation(instance)
         action = self.context.get('action')
         
         if action == 'list':
-            
             representation['count_of_lines'] = instance.lines.count()
         
         elif action == 'retrieve':
-
             lines = instance.lines.all()
             representation['lines'] = BomLineSerializer(lines, many=True, context={'action': 'list'}).data
         
