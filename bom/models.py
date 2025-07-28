@@ -12,9 +12,13 @@ class Bom(SafeDeleteModel):
 
     _safedelete_policy = SOFT_DELETE
     product = models.OneToOneField('core.Material', on_delete=models.CASCADE, related_name='bom', null=False, blank=False)
+    uom = UOMField(null=False, blank=False, default=None)
     labor_cost = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])
     machining_cost = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])
     history = HistoricalRecords()
+    
+    class Meta:
+        unique_together = ['product', 'uom']
     
     @property
     def latest_cost(self):
@@ -56,7 +60,7 @@ class BomLine(SafeDeleteModel):
     history = HistoricalRecords()
     
     class Meta:
-        unique_together = ['bom', 'component']
+        unique_together = ['bom', 'component', 'uom']
     
     def __str__(self):
         return f"{self.component.name} x {self.quantity} {self.uom}"

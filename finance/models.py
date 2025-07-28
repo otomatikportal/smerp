@@ -87,6 +87,7 @@ class AccountMovement(SafeDeleteModel):
     account = models.ForeignKey('Account', on_delete=models.PROTECT, related_name='movements', verbose_name=_('Hesap'))
     movement_type = models.CharField(_('Hareket Türü'), max_length=10, choices=MOVEMENT_TYPES, null=False, blank=False)
     amount = models.DecimalField(_('Tutar'), max_digits=15, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
+    currency = CurrencyField()
     description = models.TextField(_('Açıklama'), max_length=500, null=False, blank=False)
     history = HistoricalRecords()
     

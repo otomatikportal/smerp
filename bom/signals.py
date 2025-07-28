@@ -7,6 +7,7 @@ from .models import Bom, BomLine
 def create_variable_cost_for_bom_instance(bom_instance):
     VariableCost = apps.get_model('sales', 'VariableCost')
     latest_cost = bom_instance.latest_cost
+    
     if latest_cost is not None:
         reference_cost = VariableCost.objects.filter(
             material=bom_instance.product
@@ -14,17 +15,15 @@ def create_variable_cost_for_bom_instance(bom_instance):
         
         if reference_cost:
             currency = getattr(reference_cost, 'currency', 'TRY')
-            uom = getattr(reference_cost, 'uom', 'ADT')
         else:
             currency = 'TRY'
-            uom = 'ADT'
         
         VariableCost.objects.create(
             bom=bom_instance,
             material=bom_instance.product,
             cost=latest_cost,
             currency=currency,
-            uom=uom
+            uom=bom_instance.uom
         )
 
 
