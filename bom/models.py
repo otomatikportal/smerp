@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator
 from safedelete import SOFT_DELETE
 from safedelete.models import SafeDeleteModel
 from core.fields import UOMField
-
 from simple_history.models import HistoricalRecords
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -22,8 +21,11 @@ class Bom(SafeDeleteModel):
         """
         Calculates the total latest cost of all components in the BOM using VariableCost records 
         that match the UOM specified in each BOM line.
-        Returns None if any component has no cost for the required UOM.
+        Returns None if any component has no cost for the required UOM, or if labor_cost or machining_cost is missing.
         """
+        if self.labor_cost is None or self.machining_cost is None:
+            return None
+            
         total = 0
         
         for line in self.lines.all():
@@ -35,13 +37,12 @@ class Bom(SafeDeleteModel):
             
             total += material_cost * line.quantity
         
-        return total
+        return total + self.labor_cost + self.machining_cost
     
     def __str__(self):
         return f"BOM for {self.product.name}"
     
     def clean(self):
-        # Prevent the product from being used as a component in any of its lines
         if self.pk and self.lines.filter(component=self.product).exists():
             raise ValidationError(_("Bir Reçete'nin ürünü, kendi Reçete satırlarında bileşen olarak kullanılamaz."))
 
@@ -61,22 +62,22 @@ class BomLine(SafeDeleteModel):
         return f"{self.component.name} x {self.quantity} {self.uom}"
     
     def clean(self):
-        # Prevent the component from being the same as the BOM's product
+        if self.pk:
+            original = self.__class__.objects.get(pk=self.pk)
+            if original.bom != self.bom:
+                raise ValidationError(_("BOM alanı oluşturulduktan sonra değiştirilemez."))
+        
         if self.bom and self.component == self.bom.product:
             raise ValidationError(_("Bir Reçete satırının bileşeni, Reçete'nin ürünü ile aynı olamaz."))
 
-        # Prevent circularity: component cannot (directly or indirectly) be the parent product
-        # Traverse up the BOM tree from the component
         visited = set()
         current_material = self.component
         while True:
             if current_material == self.bom.product:
                 raise ValidationError(_("Döngüsel Reçete ilişkisi: Bu bileşen, Reçete'nin ürünü ile dolaylı olarak aynı olamaz."))
-            # If the material has a BOM, go up to its product
             bom = getattr(current_material, 'bom', None)
             if not bom or not hasattr(bom, 'product'):
                 break
-            # Prevent infinite loop in case of corrupted data
             if current_material.pk in visited:
                 break
             visited.add(current_material.pk)
