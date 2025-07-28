@@ -127,12 +127,7 @@ class StockRecordViewSet(viewsets.ModelViewSet):
                 "status": "error",
                 "message": _("Stok kaydı zaten silinmemiş")
             }, status=status.HTTP_400_BAD_REQUEST)
-
-    def update(self, request, *args, **kwargs):
-        return Response({
-            "status": "error",
-            "message": "PUT method is not allowed for this resource. Use PATCH instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
