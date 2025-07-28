@@ -25,14 +25,21 @@ class Bom(SafeDeleteModel):
         """
         Calculates the total latest cost of all components in the BOM using VariableCost records 
         that match the UOM specified in each BOM line.
-        Returns None if any component has no cost for the required UOM, or if labor_cost or machining_cost is missing.
+        Returns None if any component has no cost for the required UOM, if labor_cost or machining_cost is missing,
+        or if the BOM has no lines.
         """
         if self.labor_cost is None or self.machining_cost is None:
             return None
             
+        lines = self.lines.all()
+        
+        # Return None if BOM has no lines
+        if not lines.exists():
+            return None
+            
         total = 0
         
-        for line in self.lines.all():
+        for line in lines:
             # Get the latest cost for this material with matching UOM
             material_cost = line.component.latest_cost_for_uom(line.uom)
             

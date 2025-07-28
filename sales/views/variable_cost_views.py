@@ -77,18 +77,48 @@ class VariableCostViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-        validated_data['user'] = request.user
-        instance = serializer.save(**validated_data)
-        
-        return Response({
-            "status": "success",
-            "message": "Variable cost record created successfully",
-            "result": self.get_serializer(instance).data
-        }, status=status.HTTP_201_CREATED)
+        if isinstance(request.data, list):
+            created_costs = []
+            errors = []
+            
+            for i, cost_data in enumerate(request.data):
+                serializer = self.get_serializer(data=cost_data)
+                if serializer.is_valid():
+                    validated_data = serializer.validated_data
+                    validated_data['user'] = request.user
+                    instance = serializer.save(**validated_data)
+                    created_costs.append(self.get_serializer(instance).data)
+                else:
+                    errors.append({
+                        "index": i,
+                        "data": cost_data,
+                        "errors": serializer.errors
+                    })
+            
+            if errors:
+                return Response({
+                    "status": "validation_error",
+                    "message": f"Validation failed for {len(errors)} variable costs",
+                    "errors": errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({
+                "status": "success",
+                "message": f"Successfully created {len(created_costs)} variable cost records",
+                "results": created_costs
+            }, status=status.HTTP_201_CREATED)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            validated_data = serializer.validated_data
+            validated_data['user'] = request.user
+            instance = serializer.save(**validated_data)
+            
+            return Response({
+                "status": "success",
+                "message": "Variable cost record created successfully",
+                "result": self.get_serializer(instance).data
+            }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic

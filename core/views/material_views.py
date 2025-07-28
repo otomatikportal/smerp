@@ -8,6 +8,7 @@ from rest_framework.views import exception_handler
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions
 from safedelete.config import HARD_DELETE
+from datetime import datetime
 
 
 class CustomPagination(pagination.PageNumberPagination):
@@ -64,12 +65,64 @@ class MaterialViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        return Response({
-            "status": "success",
-            "message": "Material created successfully",
-            "result": response.data
-        }, status=status.HTTP_201_CREATED)
+        # Check if it's bulk create (list) or single create (dict)
+        if isinstance(request.data, list):
+            # Bulk create without individual signals
+            validated_materials = []
+            errors = []
+            
+            # First validate all data
+            for i, material_data in enumerate(request.data):
+                serializer = self.get_serializer(data=material_data)
+                if serializer.is_valid():
+                    validated_materials.append(serializer.validated_data)
+                else:
+                    errors.append({
+                        "index": i,
+                        "data": material_data,
+                        "errors": serializer.errors
+                    })
+            
+            if errors:
+                return Response({
+                    "status": "validation_error",
+                    "message": f"Validation failed for {len(errors)} materials",
+                    "errors": errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Bulk create all valid materials (no individual signals)
+            material_objects = [Material(**data) for data in validated_materials]
+            created_materials = Material.objects.bulk_create(material_objects)
+            
+            # Auto-generate internal_codes for bulk created materials
+            for material in created_materials:
+                if not material.internal_code:
+                    prefix = Material.PREFIX_MAP.get(material.category, 'UND-')
+                    year = str(datetime.now().year)[-2:]
+                    pk_str = str(material.pk)
+                    zeros_len = 14 - (len(prefix) + len(year) + len(pk_str))
+                    zeros = '0' * max(0, zeros_len)
+                    material.internal_code = f"{prefix}{year}{zeros}{pk_str}"[:14]
+            
+            # Update internal_codes in bulk
+            Material.objects.bulk_update(created_materials, ['internal_code'])
+            
+            # Serialize response data
+            response_data = MaterialSerializer(created_materials, many=True).data
+            
+            return Response({
+                "status": "success",
+                "message": f"Successfully created {len(created_materials)} materials",
+                "results": response_data
+            }, status=status.HTTP_201_CREATED)
+        else:
+            # Single create (original behavior with signals)
+            response = super().create(request, *args, **kwargs)
+            return Response({
+                "status": "success",
+                "message": "Material created successfully",
+                "result": response.data
+            }, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
