@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from bom.models import BomLine
+from django.utils.translation import gettext_lazy as _
 
 
 class BomLineSerializer(serializers.ModelSerializer):
     
     created_by = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
+    uom = serializers.CharField(required=True)
     
     class Meta:
         model = BomLine
@@ -22,6 +24,24 @@ class BomLineSerializer(serializers.ModelSerializer):
             'created_at'
         ]
     
+    def validate_uom(self, value):
+        if not value:
+            raise serializers.ValidationError(_("UOM alanı zorunludur ve boş bırakılamaz."))
+        return value
+    
+    def validate(self, data):
+        quantity = data.get('quantity')
+        uom = data.get('uom')
+        
+        if quantity and uom:
+            if uom in ['ADT', 'BOX', 'PLT'] and quantity != int(quantity):
+                raise serializers.ValidationError({
+                    'quantity': _("Adet, koli ve palet birimleri için miktar tam sayı olmalıdır.")
+                })
+        
+        return data
+        
+    
     def get_created_by(self, obj):
         first_history = getattr(obj, 'history', None)
         if first_history:
@@ -37,4 +57,3 @@ class BomLineSerializer(serializers.ModelSerializer):
             if first_history:
                 return first_history.history_date
         return None
-            
