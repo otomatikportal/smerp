@@ -55,12 +55,14 @@ class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     permission_classes = [CustomDjangoModelPermissions]
 
+
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
         if isinstance(response.data, dict) and "results" in response.data:
             response.data["status"] = "success"
             response.data["message"] = "Procurement order lines retrieved successfully"
             return response
+
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -71,6 +73,7 @@ class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
             "result": serializer.data
         }, status=status.HTTP_200_OK)
 
+
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
@@ -79,6 +82,7 @@ class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
             "message": "Procurement order line created successfully",
             "result": response.data
         }, status=status.HTTP_201_CREATED)
+
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
@@ -92,18 +96,51 @@ class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
             "result": serializer.data
         }, status=status.HTTP_200_OK)
 
+
     @action(detail=True, methods=['post'], url_path='delete', permission_classes=[DjangoModelPermissions])
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer()
-        # Soft delete (SafeDeleteModel)
-        serializer.delete(instance)
+        try:
+            instance = ProcurementOrderLine.objects.all_with_deleted().get(pk=kwargs['pk']) # type: ignore
+        except ProcurementOrderLine.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Procurement order line not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        instance.delete()
         return Response({
             "status": "success",
             "message": "Procurement order line soft deleted successfully"
         }, status=status.HTTP_200_OK)
 
+
+    @action(detail=True, methods=['post'], url_path='recover')
+    @transaction.atomic
+    def recover(self, request, *args, **kwargs):
+        try:
+            instance = ProcurementOrderLine.objects.all_with_deleted().get(pk=kwargs['pk']) # type: ignore
+        except ProcurementOrderLine.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Procurement order line not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        if instance.deleted is not None:
+            instance.undelete()
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": "success",
+                "message": "Procurement order line recovered successfully",
+                "result": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": "error",
+                "message": "Procurement order line is not deleted"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -111,19 +148,6 @@ class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
         return Response({
             "status": "success",
             "message": "Procurement order line hard deleted successfully"
-        }, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=['post'], url_path='recover')
-    @transaction.atomic
-    def recover(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if instance.deleted is not None:
-            instance.undelete()
-        serializer = self.get_serializer(instance)
-        return Response({
-            "status": "success",
-            "message": "Procurement order line recovered successfully",
-            "result":serializer.data
         }, status=status.HTTP_200_OK)
 
 

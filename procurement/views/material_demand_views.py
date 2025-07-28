@@ -7,6 +7,7 @@ from procurement.serializers.material_demand_serializers import MaterialDemandSe
 from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
+from safedelete.config import HARD_DELETE
 
 class CustomDjangoModelPermissions(DjangoModelPermissions):
     perms_map = {
@@ -61,11 +62,6 @@ class MaterialDemandViewSet(viewsets.ModelViewSet):
             response.data["status"] = "success"
             response.data["message"] = "Material demands retrieved successfully"
             return response
-        return Response({
-            "status": "success",
-            "message": "Material demands retrieved successfully",
-            "results": response.data
-        }, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -97,9 +93,15 @@ class MaterialDemandViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer()
-        serializer.delete(instance)
+        try:
+            instance = MaterialDemand.objects.all_with_deleted().get(pk=kwargs['pk']) # type: ignore
+        except MaterialDemand.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Material demand not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        instance.delete()
         return Response({
             "status": "success",
             "message": "Material demand deleted successfully"
@@ -117,16 +119,27 @@ class MaterialDemandViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = MaterialDemand.objects.all_with_deleted().get(pk=kwargs['pk']) # type: ignore
+        except MaterialDemand.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Material demand not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         if instance.deleted is not None:
             instance.undelete()
-        serializer = self.get_serializer(instance)
-        return Response({
-            "status": "success",
-            "message": "Material demand recovered successfully",
-            "result": serializer.data
-        }, status=status.HTTP_200_OK)
-
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": "success",
+                "message": "Material demand recovered successfully",
+                "result": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": "error",
+                "message": "Material demand is not deleted"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 

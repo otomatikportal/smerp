@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from inventory.models import InventoryLocation
 from inventory.serializers.inventory_location_serializers import InventoryLocationSerializer
 from safedelete.config import HARD_DELETE
+from django.utils.translation import gettext_lazy as _
 
 
 class CustomDjangoModelPermissions(DjangoModelPermissions):
@@ -123,26 +124,51 @@ class InventoryLocationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = InventoryLocation.objects.all_with_deleted().get(pk=kwargs['pk'])  # type: ignore
+        except InventoryLocation.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": _("Envanter lokasyonu bulunamadı")
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if there are any StockRecord objects using this location
+        if hasattr(instance, 'stockrecord_set') and instance.stockrecord_set.exists():
+            return Response({
+                "status": "error",
+                "message": _("Bu lokasyonda stok kayıtları bulunduğu için silinemez. Önce stok kayıtlarını başka bir lokasyona taşıyın.")
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         instance.delete()
         return Response({
             "status": "success",
-            "message": "Inventory location deleted successfully"
+            "message": _("Envanter lokasyonu başarıyla silindi")
         }, status=status.HTTP_200_OK)
-
 
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = InventoryLocation.objects.all_with_deleted().get(pk=kwargs['pk'])  # type: ignore
+        except InventoryLocation.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": _("Envanter lokasyonu bulunamadı")
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         if instance.deleted is not None:
             instance.undelete()
-        serializer = self.get_serializer(instance)
-        return Response({
-            "status": "success",
-            "message": "Inventory location recovered successfully",
-            "results": serializer.data
-        }, status=status.HTTP_200_OK)
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": "success",
+                "message": _("Envanter lokasyonu başarıyla geri yüklendi"),
+                "result": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": "error",
+                "message": _("Envanter lokasyonu zaten silinmemiş")
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         return Response({

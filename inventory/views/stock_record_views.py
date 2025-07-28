@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from inventory.models import StockRecord
 from inventory.serializers.stock_record_serializers import StockRecordSerializer
 from safedelete.config import HARD_DELETE
+from django.utils.translation import gettext_lazy as _
 
 class CustomDjangoModelPermissions(DjangoModelPermissions):
     perms_map = {
@@ -88,25 +89,44 @@ class StockRecordViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = StockRecord.objects.all_with_deleted().get(pk=kwargs['pk'])  # type: ignore
+        except StockRecord.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": _("Stok kaydı bulunamadı")
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         instance.delete()
         return Response({
             "status": "success",
-            "message": "Stock record deleted successfully"
+            "message": _("Stok kaydı başarıyla silindi")
         }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = StockRecord.objects.all_with_deleted().get(pk=kwargs['pk'])  # type: ignore
+        except StockRecord.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": _("Stok kaydı bulunamadı")
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         if instance.deleted is not None:
             instance.undelete()
-        serializer = self.get_serializer(instance)
-        return Response({
-            "status": "success",
-            "message": "Stock record recovered successfully",
-            "result": serializer.data
-        }, status=status.HTTP_200_OK)
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": "success",
+                "message": _("Stok kaydı başarıyla geri yüklendi"),
+                "result": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": "error",
+                "message": _("Stok kaydı zaten silinmemiş")
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         return Response({

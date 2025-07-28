@@ -46,25 +46,13 @@ class VariableCostViewSet(viewsets.ModelViewSet):
     ordering_fields = ['cost', 'id']
     pagination_class = CustomPagination
     permission_classes = [CustomDjangoModelPermissions]
-    
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.action in ['recover', 'delete']:
-            return VariableCost.objects.all_with_deleted()
-        return queryset
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True, context={**self.get_serializer_context(), 'action': 'list'})
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True, context={**self.get_serializer_context(), 'action': 'list'})
-        return Response({
-            "status": "success",
-            "message": "Variable cost records retrieved successfully",
-            "results": serializer.data
-        }, status=status.HTTP_200_OK)
+        response = super().list(request, *args, **kwargs)
+        if isinstance(response.data, dict) and "results" in response.data:
+            response.data["status"] = "success"
+            response.data["message"] = "Variable cost records retrieved successfully"
+            return response
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -123,7 +111,14 @@ class VariableCostViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='delete')
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = VariableCost.objects.all_with_deleted().get(pk=kwargs['pk']) #type: ignore
+        except VariableCost.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Variable cost record not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         instance.delete()
         return Response({
             "status": "success",
@@ -133,15 +128,27 @@ class VariableCostViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = VariableCost.objects.all_with_deleted().get(pk=kwargs['pk']) #type: ignore
+        except VariableCost.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Variable cost record not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         if instance.deleted is not None:
             instance.undelete()
-        serializer = self.get_serializer(instance)
-        return Response({
-            "status": "success",
-            "message": "Variable cost record recovered successfully",
-            "result": serializer.data
-        }, status=status.HTTP_200_OK)
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": "success",
+                "message": "Variable cost record recovered successfully",
+                "result": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": "error",
+                "message": "Variable cost record is not deleted"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):

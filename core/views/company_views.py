@@ -35,7 +35,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
       - search_fields: name, legal_name, e_mail, website, phone, description
       - ordering_fields: id, name, legal_name
     """
-    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
+    http_method_names = ['get', 'post', 'patch', 'delete']
     queryset = Company.objects.all().order_by('-id')
     serializer_class = CompanySerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -105,12 +105,6 @@ class CompanyViewSet(viewsets.ModelViewSet):
             "status": "success",
             "message": "Company recovered successfully"
         }, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        return Response({
-            "status": "error",
-            "message": "PUT method is not allowed for this resource. Use PATCH instead."
-        }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):

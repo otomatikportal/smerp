@@ -88,7 +88,14 @@ class ProcurementOrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='delete', permission_classes=[DjangoModelPermissions])
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = ProcurementOrder.objects.all_with_deleted().get(pk=kwargs['pk']) #type: ignore
+        except ProcurementOrder.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Order not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
         instance.delete()
         return Response({
             "status": "success",
@@ -98,15 +105,27 @@ class ProcurementOrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='recover')
     @transaction.atomic
     def recover(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if hasattr(instance, 'undelete'):
+        try:
+            instance = ProcurementOrder.objects.all_with_deleted().get(pk=kwargs['pk']) #type: ignore
+        except ProcurementOrder.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Order not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        if instance.deleted is not None:
             instance.undelete()
+            serializer = self.get_serializer(instance)
+            return Response({
+                "status": "success",
+                "message": "Order recovered successfully",
+                "result": serializer.data
+            }, status=status.HTTP_200_OK)
         else:
-            instance.save()
-        return Response({
-            "status": "success",
-            "message": "Order recovered successfully"
-        }, status=status.HTTP_200_OK)
+            return Response({
+                "status": "error",
+                "message": "Order is not deleted"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
