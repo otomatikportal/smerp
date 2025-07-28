@@ -46,8 +46,10 @@ INSTALLED_APPS = [
     'procurement',
     'sales',
     'production',
+    'finance',
     'django_filters',
     'drf_yasg',
+    'bom',
 ]
 
 MIDDLEWARE = [
@@ -136,6 +138,65 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 SWAGGER_SETTINGS = {
     "DEFAULT_INFO": "root_urls.api_info",
+}
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/django.log',
+            'formatter': 'verbose',
+        },
+        'exchange_rates_file': {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/exchange_rates.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
+        'finance.tasks': {
+            'handlers': ['console', 'exchange_rates_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'celery': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
 }
 
 

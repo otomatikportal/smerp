@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from core.fields import GenderField
 from safedelete.models import SafeDeleteModel
 from safedelete.config import SOFT_DELETE
+from django.apps import apps
 
 
 class Company(SafeDeleteModel):
@@ -58,6 +59,28 @@ class Material(SafeDeleteModel):
     
     def __str__(self):
         return str(self.name)
+    
+    @property
+    def latest_cost(self):
+        """
+        Returns the cost field of the latest VariableCost for this material.
+        Safe for use in serializers and querysets.
+        """
+        VariableCost = apps.get_model('sales', 'VariableCost')
+        latest = VariableCost.objects.filter(material=self).order_by('-id').first()
+        return latest.cost if latest else None
+    
+    def latest_cost_for_uom(self, uom):
+        """
+        Returns the cost field of the latest VariableCost for this material with the specified UOM.
+        Args:
+            uom: The unit of measure to filter by
+        Returns:
+            Decimal cost if found, None otherwise
+        """
+        VariableCost = apps.get_model('sales', 'VariableCost')
+        latest = VariableCost.objects.filter(material=self, uom=uom).order_by('-id').first()
+        return latest.cost if latest else None
 
     PREFIX_MAP = {
         'supplied': 'TED-',

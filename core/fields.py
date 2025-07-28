@@ -23,12 +23,8 @@ class CurrencyField(models.CharField):
         USD = "USD", _("ABD Doları")
         EUR = "EUR", _("Euro")
         GBP = "GBP", _("İngiliz Sterlini")
-        JPY = "JPY", _("Japon Yeni")
-        CHF = "CHF", _("İsviçre Frangı")
         RUB = "RUB", _("Rus Rublesi")
-        CNY = "CNY", _("Çin Yuanı")
-        SEK = "SEK", _("İsveç Kronu")
-        AUD = "AUD", _("Avustralya Doları")
+
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("max_length", 6)
