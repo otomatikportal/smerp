@@ -1,13 +1,6 @@
 @echo off
 echo Starting Celery Worker and Beat for SMERP Exchange Rates...
 
-REM Start Redis (assuming it's installed and in PATH)
-echo Starting Redis...
-start "Redis Server" redis-server
-
-REM Wait a moment for Redis to start
-timeout /t 3
-
 REM Start Celery Worker
 echo Starting Celery Worker...
 start "Celery Worker" C:/Users/omer_/Desktop/smerp/.venv/Scripts/python.exe -m celery -A config worker --loglevel=info

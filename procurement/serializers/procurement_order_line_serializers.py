@@ -9,7 +9,7 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
     created_at = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.SerializerMethodField(read_only=True)
     quantity = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False)
-    quantity_received = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False)
+    quantity_received = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False, read_only =True)
     unit_price = serializers.DecimalField(max_digits=32, decimal_places=2, coerce_to_string=False, required=False, allow_null=True)
     tax_rate = serializers.DecimalField(max_digits=4, decimal_places=3, coerce_to_string=False, required=False, allow_null=True)
 
@@ -30,7 +30,14 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
             'created_by',
             'created_at',
         ]
-        read_only_fields = ['quantity_left', 'total_with_tax', 'total_without_tax', 'created_by', 'created_at']
+        read_only_fields = [
+            'quantity_left',
+            'total_with_tax',
+            'total_without_tax',
+            'created_by',
+            'created_at',
+            'quantity_received'
+            ]
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -123,6 +130,3 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
     def delete(self, instance):
         instance.delete()
         return instance
-
-
-    

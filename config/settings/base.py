@@ -197,6 +197,11 @@ LOGGING = {
         'handlers': ['console'],
         'level': 'WARNING',
     },
+        'procurement.signals': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+        'propagate': False,
+    },
 }
 
 

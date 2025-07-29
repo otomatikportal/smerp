@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions
 from safedelete.config import HARD_DELETE
 from datetime import datetime
+from simple_history.utils import bulk_create_with_history
 
 
 class CustomPagination(pagination.PageNumberPagination):
@@ -90,9 +91,13 @@ class MaterialViewSet(viewsets.ModelViewSet):
                     "errors": errors
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Bulk create all valid materials (no individual signals)
+            # Bulk create all valid materials with history
             material_objects = [Material(**data) for data in validated_materials]
-            created_materials = Material.objects.bulk_create(material_objects)
+            created_materials = bulk_create_with_history(
+                material_objects,
+                Material,
+                default_user=request.user if request.user.is_authenticated else None
+            )
             
             # Auto-generate internal_codes for bulk created materials
             for material in created_materials:
@@ -106,6 +111,20 @@ class MaterialViewSet(viewsets.ModelViewSet):
             
             # Update internal_codes in bulk
             Material.objects.bulk_update(created_materials, ['internal_code'])
+            
+            # Create additional history records for the internal_code update
+            for material in created_materials:
+                material.history.create(
+                    id=material.id,
+                    name=material.name,
+                    category=material.category,
+                    internal_code=material.internal_code,
+                    description=material.description,
+                    history_type='~',  # '~' for change
+                    history_user=request.user if request.user.is_authenticated else None,
+                    history_date=datetime.now(),
+                    history_change_reason='Auto-generated internal code'
+                )
             
             # Serialize response data
             response_data = MaterialSerializer(created_materials, many=True).data

@@ -143,3 +143,13 @@ def fetch_specific_exchange_rate(from_currency, to_currency, target_date=None):
     except Exception as e:
         logger.error(f"Error in fetch_specific_exchange_rate: {e}")
         return f"Error: {e}"
+    
+    
+    
+
+    
+    
+    
+
+
+

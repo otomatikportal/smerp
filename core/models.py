@@ -68,7 +68,7 @@ class Material(SafeDeleteModel):
         """
         VariableCost = apps.get_model('sales', 'VariableCost')
         latest = VariableCost.objects.filter(material=self).order_by('-id').first()
-        return latest.cost if latest else None
+        return latest.cost if latest else None #type: ignore
     
     def latest_cost_for_uom(self, uom):
         """
@@ -80,7 +80,7 @@ class Material(SafeDeleteModel):
         """
         VariableCost = apps.get_model('sales', 'VariableCost')
         latest = VariableCost.objects.filter(material=self, uom=uom).order_by('-id').first()
-        return latest.cost if latest else None
+        return latest.cost if latest else None #type: ignore
 
     PREFIX_MAP = {
         'supplied': 'TED-',

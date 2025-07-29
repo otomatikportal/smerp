@@ -16,5 +16,5 @@ DATABASES = {
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }
-
+CELERY_BROKER_URL = 'redis://192.168.8.167:6379/0'
 NGINX_SECRET_KEY = "7fxZ60hbeU909nwaCb3kwFPDVpz6e3JKtgy7Wbqr3ZU="
