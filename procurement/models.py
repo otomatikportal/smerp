@@ -216,11 +216,11 @@ class ProcurementOrder(SafeDeleteModel):
         errors = {}
         
         if new_status == 'submitted':
-            if self.lines.count() <= 0:
+            if self.lines.count() <= 0: #type: ignore
                 errors['lines'] = _('Satın almanın içinde malzeme yok')
             
             # Check for missing unit_price in any line
-            missing_price_lines = [line for line in self.lines.all() if line.unit_price is None]
+            missing_price_lines = [line for line in self.lines.all() if line.unit_price is None] #type: ignore
             if missing_price_lines:
                 errors['lines'] = _('Satırların bir veya daha fazlasında birim fiyat eksik.')
             
@@ -271,7 +271,7 @@ class ProcurementOrder(SafeDeleteModel):
             'draft': ['submitted'],
             'submitted': ['approved', 'rejected', 'cancelled', 'draft'],
             'approved': ['ordered', 'rejected', 'cancelled'],
-            'rejected': ['draft'],
+            'rejected': [],
             'ordered': ['billed', 'cancelled'],
             'billed': ['paid'],
             'paid': [],
@@ -280,10 +280,6 @@ class ProcurementOrder(SafeDeleteModel):
         
         return transitions.get(self.status, [])
     
-class ProcurementInvoice(SafeDeleteModel):
-    _safedelete_policy = SOFT_DELETE
-    invoice_number = models.CharField(_('Fatura No'), max_length=50, null=False, blank=False)
-    po = models.ForeignKey("procurement.ProcurementOrder", related_name='invoices', on_delete=models.CASCADE, verbose_name=_('Satınalma Siparişi'))
     
 class ProcurementOrderLine(SafeDeleteModel):
 

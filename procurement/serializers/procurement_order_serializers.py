@@ -16,6 +16,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         model = ProcurementOrder
         fields = [
             'id',
+            'po_number',
             'payment_term',
             'payment_method',
             'incoterms',
@@ -39,7 +40,14 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
             'vendor',
         ]
         read_only_fields = [
-            'created_by', 'created_at', 'total_price_without_tax', 'total_price_with_tax', 'all_received', 'last_payment_date', 'invoice_accepted'
+            'created_by', 
+            'created_at', 
+            'total_price_without_tax', 
+            'total_price_with_tax', 
+            'all_received', 
+            'last_payment_date', 
+            'invoice_accepted',
+            'po_number',
         ]
         
     def get_lines(self, obj):
