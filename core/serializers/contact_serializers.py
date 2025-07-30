@@ -35,17 +35,9 @@ class ContactSerializer(serializers.ModelSerializer):
         return None
 
     def partial_update(self, instance, validated_data):
-        # Only allow updating name, last_name, gender, role, e_mail, phone, description
         allowed_fields = ['name', 'last_name', 'gender', 'role', 'e_mail', 'phone', 'description']
         for field in allowed_fields:
             if field in validated_data:
                 setattr(instance, field, validated_data[field])
         instance.save()
-        return instance
-
-    def delete(self, instance):
-        """
-        Triggers the model's delete method, which should invoke the soft delete policy if using a soft delete library.
-        """
-        instance.delete()
         return instance

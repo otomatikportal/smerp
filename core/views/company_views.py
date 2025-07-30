@@ -46,16 +46,12 @@ class CompanyViewSet(viewsets.ModelViewSet):
     permission_classes = [DjangoModelPermissions]
 
     def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        # Enhance successful response
-        if isinstance(response.data, dict) and "results" in response.data:
-            response.data["status"] = "success"
-            response.data["message"] = "Companies retrieved successfully"
+        return super().list(request, *args, **kwargs)
 
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, context={'action': 'retrieve'})
+        serializer = self.get_serializer(instance)
         return Response({
             "status": "success",
             "message": "Company retrieved successfully",

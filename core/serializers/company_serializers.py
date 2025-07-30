@@ -37,15 +37,24 @@ class CompanySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        action = self.context.get('action')
+        
+        view = self.context.get('view')
+        if view is not None:
+            action = getattr(view, 'action', None)
+        else:
+            action = None
+
+        print(action)
+        
         if action == 'retrieve':
-            contacts_qs = instance.contacts.all()
-            ret['contacts'] = ContactSerializer(contacts_qs, many=True).data
+            ret['contacts'] = ContactSerializer(instance.contacts.all(), many=True).data
+            
         elif action == 'list':
             ret['contacts_count'] = instance.contacts.count()
             ret.pop('contacts', None)
         else:
             ret.pop('contacts', None)
+
         return ret
 
     def create(self, validated_data):

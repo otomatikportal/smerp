@@ -1,11 +1,12 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
-from datetime import datetime
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from core.fields import GenderField
 from safedelete.models import SafeDeleteModel
 from safedelete.config import SOFT_DELETE
 from django.apps import apps
+
 
 
 class Company(SafeDeleteModel):
@@ -98,12 +99,29 @@ class Material(SafeDeleteModel):
         super().save(*args, **kwargs)
         if creating and not self.internal_code:
             prefix = self.PREFIX_MAP.get(self.category, 'UND-')
-            year = str(datetime.now().year)[-2:]
+            year = str(timezone.now().year)[-2:]
             pk_str = str(self.pk)
             # prefix (4) + year (2) + zeros (variable) + pk (variable) = 14
             zeros_len = 14 - (len(prefix) + len(year) + len(pk_str))
             zeros = '0' * max(0, zeros_len)
             self.internal_code = f"{prefix}{year}{zeros}{pk_str}"[:14]
             super().save(update_fields=["internal_code"])
+            
+    def generate_internal_code(self):
+        """
+        Generates and sets internal_code using PK.
+        Should be called AFTER the instance is saved to DB (i.e., has a PK).
+        """
+        if not self.pk:
+            raise ValueError("Cannot generate internal_code without a primary key (pk)")
+        if self.internal_code:
+            return  # Already has code
+
+        prefix = self.PREFIX_MAP.get(self.category, 'UND-')
+        year = str(timezone.now().year)[-2:]
+        pk_str = str(self.pk)
+        zeros_len = 14 - (len(prefix) + len(year) + len(pk_str))
+        zeros = '0' * max(0, zeros_len)
+        self.internal_code = f"{prefix}{year}{zeros}{pk_str}"[:14]
     
     

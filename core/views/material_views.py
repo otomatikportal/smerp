@@ -10,7 +10,8 @@ from rest_framework.permissions import DjangoModelPermissions
 from safedelete.config import HARD_DELETE
 from datetime import datetime
 from simple_history.utils import bulk_create_with_history
-
+from django.db import models
+from simple_history.models import HistoricalRecords
 
 class CustomPagination(pagination.PageNumberPagination):
     page_size = 10
@@ -66,13 +67,12 @@ class MaterialViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # Check if it's bulk create (list) or single create (dict)
+        
         if isinstance(request.data, list):
-            # Bulk create without individual signals
+            
             validated_materials = []
             errors = []
             
-            # First validate all data
             for i, material_data in enumerate(request.data):
                 serializer = self.get_serializer(data=material_data)
                 if serializer.is_valid():
@@ -91,7 +91,6 @@ class MaterialViewSet(viewsets.ModelViewSet):
                     "errors": errors
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Bulk create all valid materials with history
             material_objects = [Material(**data) for data in validated_materials]
             created_materials = bulk_create_with_history(
                 material_objects,
@@ -99,34 +98,10 @@ class MaterialViewSet(viewsets.ModelViewSet):
                 default_user=request.user if request.user.is_authenticated else None
             )
             
-            # Auto-generate internal_codes for bulk created materials
             for material in created_materials:
-                if not material.internal_code:
-                    prefix = Material.PREFIX_MAP.get(material.category, 'UND-')
-                    year = str(datetime.now().year)[-2:]
-                    pk_str = str(material.pk)
-                    zeros_len = 14 - (len(prefix) + len(year) + len(pk_str))
-                    zeros = '0' * max(0, zeros_len)
-                    material.internal_code = f"{prefix}{year}{zeros}{pk_str}"[:14]
-            
-            # Update internal_codes in bulk
-            Material.objects.bulk_update(created_materials, ['internal_code'])
-            
-            # Create additional history records for the internal_code update
-            for material in created_materials:
-                material.history.create(
-                    id=material.id,
-                    name=material.name,
-                    category=material.category,
-                    internal_code=material.internal_code,
-                    description=material.description,
-                    history_type='~',  # '~' for change
-                    history_user=request.user if request.user.is_authenticated else None,
-                    history_date=datetime.now(),
-                    history_change_reason='Auto-generated internal code'
-                )
-            
-            # Serialize response data
+                material.generate_internal_code()
+
+            Material.objects.bulk_update(created_materials, ['internal_code'])            
             response_data = MaterialSerializer(created_materials, many=True).data
             
             return Response({
