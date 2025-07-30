@@ -1,13 +1,14 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from sales.models import SalesOrderLine
+from sales.models import SalesOrder, SalesOrderLine
 from core.serializers.material_serializers import MaterialSerializer
 
 class SalesOrderLineSerializer(serializers.ModelSerializer):
     material_internal_code = serializers.CharField(source='material.internal_code', read_only=True)
     created_by = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
-    
+    so = serializers.PrimaryKeyRelatedField(queryset=SalesOrder.objects.all(), required=False)
+
     class Meta:
         model = SalesOrderLine
         fields = [
@@ -81,10 +82,10 @@ class SalesOrderLineSerializer(serializers.ModelSerializer):
         if so:
             if so.status != 'draft':
                 raise serializers.ValidationError({
-                    'po': 'Sadece taslak (draft) durumundaki SO için satır eklenebilir.'
+                    'so': 'Sadece taslak (draft) durumundaki SO için satır eklenebilir.'
                 })
         if so and material:
-            exists = SalesOrderLine.objects.filter(po=so, material=material).exists()
+            exists = SalesOrderLine.objects.filter(so=so, material=material).exists()
             if exists:
                 raise serializers.ValidationError({
                     'material': 'Bu malzeme bu SO da zaten mevcut!.'

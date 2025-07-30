@@ -1,13 +1,10 @@
-from django.core.serializers import get_serializer
 from rest_framework import viewsets, status, filters, pagination
 from django.db import transaction
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.views import exception_handler
-from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
+from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
 from safedelete.config import HARD_DELETE
-from django.conf import settings
 from sales.models import VariableCost
 from sales.serializers.variable_cost_serializers import VariableCostSerializer
 

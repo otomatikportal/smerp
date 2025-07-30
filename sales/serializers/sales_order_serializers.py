@@ -1,16 +1,15 @@
 from rest_framework import serializers
-from sales.models import SalesOrder
+from sales.models import SalesOrder, SalesOrderLine
 from sales.serializers.sales_order_line_serializers import SalesOrderLineSerializer
 from core.serializers.material_serializers import MaterialSerializer
 
 
-class SalesOrderSerializer(serializers.ModelSerializer): 
-    
-    count_of_lines = serializers.SerializerMethodField(read_only=True)    
+class SalesOrderSerializer(serializers.ModelSerializer):
+    count_of_lines = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
-    customer_name = serializers.CharField(source = 'customer.name', read_only=True)
-    lines = SalesOrderLineSerializer(many=True)
+    customer_name = serializers.CharField(source='customer.name', read_only=True)
+    lines = SalesOrderLineSerializer(many=True, required=False)
     
     class Meta:
         model = SalesOrder
@@ -41,7 +40,6 @@ class SalesOrderSerializer(serializers.ModelSerializer):
             'count_of_lines',
             'lines'
         ]
-        
         read_only_fields = [
             'so_number',
             'customer_name',
@@ -50,15 +48,14 @@ class SalesOrderSerializer(serializers.ModelSerializer):
             'all_received',
             'invoice_accepted',
             'last_payment_date',
-            'lines',
             'status',
             'created_by',
-            'created_at'
+            'created_at',
         ]
-        
+
     def get_count_of_lines(self, obj):
         return obj.lines.count() if hasattr(obj, 'lines') else 0
-        
+
     def get_created_by(self, obj):
         first_history = getattr(obj, 'history', None)
         if first_history:
@@ -75,50 +72,68 @@ class SalesOrderSerializer(serializers.ModelSerializer):
                 return first_history.history_date
         return None
     
+
     def create(self, validated_data):
+        # ✅ Extract lines before creating the main object
         lines_data = validated_data.pop('lines', None)
+
+        # ✅ Create the SalesOrder first
         sales_order = SalesOrder.objects.create(**validated_data)
-        if isinstance(lines_data, list) and lines_data:
+
+        # ✅ Create lines only if data was provided
+        if lines_data:
             for line_data in lines_data:
                 line_data['so'] = sales_order
-                serializer = SalesOrderLineSerializer(data=line_data)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
+                SalesOrderLineSerializer().create(line_data)
+
         return sales_order
-    
+
     def update(self, instance, validated_data):
-        # Only allow updates if status is 'draft'
+        # ❌ Prevent updates if not in 'draft' status
         if instance.status != 'draft':
             raise serializers.ValidationError({
-                'fields': f"SO durumu '{instance.status}' olduğunda bir şey güncellenemez."
+                'status': f"SO cannot be updated because its status is '{instance.status}'. Only 'draft' SOs can be edited."
             })
 
+        # ✅ Only allow specific fields to be updated
         allowed_fields = [
             'customer', 'payment_term', 'payment_method', 'incoterms', 'trade_discount',
             'due_in_days', 'due_discount_days', 'invoice_date', 'invoice_number',
             'description', 'currency', 'delivery_address'
         ]
-        
+
+        # Check for disallowed fields
         disallowed = [field for field in validated_data if field not in allowed_fields]
         if disallowed:
             raise serializers.ValidationError({
-                'fields': f"Taslak (draft) SO'da sadece {', '.join(allowed_fields)} güncellenebilir."
+                'fields': f"Only the following fields can be updated in a draft SO: {', '.join(allowed_fields)}. "
+                          f"You tried to update: {', '.join(disallowed)}"
             })
 
-        for field in validated_data:
-            setattr(instance, field, validated_data[field])
+        # ✅ Update allowed fields
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
         instance.save()
+
         return instance
-    
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        action = self.context.get('action')
+        view = self.context.get('view')
+        action = getattr(view, 'action', None)
+
         if action == 'retrieve':
-            # Provide detailed nested lines
-            ret['lines'] = SalesOrderLineSerializer(instance.lines.all(), many=True, context={**self.context, 'action': 'list'}).data
+            # ✅ Detail view: include full lines
+            child_context = {**self.context, 'action': 'list'}
+            ret['lines'] = SalesOrderLineSerializer(
+                instance.lines.all(),
+                many=True,
+                context=child_context
+            ).data
+
         elif action == 'list':
-            # Provide only count of lines
+            # ✅ List view: only show count, hide full lines
             ret['count_of_lines'] = self.get_count_of_lines(instance)
-            ret.pop('lines', None)
+            ret.pop('lines', None)  # Remove lines list
+
         return ret

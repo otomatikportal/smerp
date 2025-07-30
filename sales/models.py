@@ -324,7 +324,7 @@ class SalesOrder(SafeDeleteModel):
 class SalesOrderLine(SafeDeleteModel):
     
     _safedelete_policy = SOFT_DELETE
-    so = models.ForeignKey("sales.SalesOrder", related_name='lines', verbose_name=_("Satış Emri"), on_delete=models.CASCADE, null=False, blank=False)
+    so = models.ForeignKey("sales.SalesOrder", related_name='lines', verbose_name=_("Satış Emri"), on_delete=models.CASCADE)
     line_number = models.IntegerField(_("#"))
     material = models.ForeignKey("core.Material", on_delete=models.PROTECT, null=False, blank=False, verbose_name=_('Malzeme'))
     quantity = models.DecimalField(_('Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
