@@ -37,7 +37,7 @@ class CustomPagination(pagination.PageNumberPagination):
         })
 
 class ProcurementOrderLineViewSet(viewsets.ModelViewSet):
-    http_method_names = ['get', 'post', 'patch', 'head', 'options', 'delete']
+    http_method_names = ['get', 'post', 'patch', 'delete']
     """
     API endpoint for managing procurement order lines.
 

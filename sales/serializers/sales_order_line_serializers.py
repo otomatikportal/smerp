@@ -1,44 +1,50 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from sales.models import SalesOrderLine
 from core.serializers.material_serializers import MaterialSerializer
-from procurement.models import ProcurementOrderLine, ProcurementOrder
 
-
-class ProcurementOrderLineSerializer(serializers.ModelSerializer):
-    po = serializers.PrimaryKeyRelatedField(queryset=ProcurementOrder.objects.all(), required=False)
-    created_at = serializers.SerializerMethodField(read_only=True)
-    created_by = serializers.SerializerMethodField(read_only=True)
-    quantity = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False)
-    quantity_received = serializers.DecimalField(max_digits=21, decimal_places=2, coerce_to_string=False, read_only=True)
-    unit_price = serializers.DecimalField(max_digits=32, decimal_places=2, coerce_to_string=False, required=False, allow_null=True)
-    tax_rate = serializers.DecimalField(max_digits=4, decimal_places=3, coerce_to_string=False, required=False, allow_null=True)
-
+class SalesOrderLineSerializer(serializers.ModelSerializer):
+    material_internal_code = serializers.CharField(source='material.internal_code', read_only=True)
+    created_by = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+    
     class Meta:
-        model = ProcurementOrderLine
+        model = SalesOrderLine
         fields = [
             'id',
-            'po',
+            'so',
             'material',
-            'uom',
+            'material_internal_code',
             'quantity',
-            'quantity_received',
+            'uom',
             'unit_price',
             'tax_rate',
-            'quantity_left',
-            'total_with_tax',
-            'total_without_tax',
             'created_by',
             'created_at',
+            
         ]
         read_only_fields = [
-            'quantity_left',
-            'total_with_tax',
-            'total_without_tax',
+            'material_internal_code',
             'created_by',
-            'created_at',
-            'quantity_received'
-            ]
+            'created_at'
+        ]
+        
+    def get_created_by(self, obj):
+        first_history = getattr(obj, 'history', None)
+        if first_history:
+            first_history = first_history.order_by('history_date').first()
+            if first_history and hasattr(first_history, 'history_user') and first_history.history_user:
+                return str(first_history.history_user)
+        return None
 
+    def get_created_at(self, obj):
+        first_history = getattr(obj, 'history', None)
+        if first_history:
+            first_history = first_history.order_by('history_date').first()
+            if first_history:
+                return first_history.history_date
+        return None
+    
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         action = self.context.get('action')
@@ -50,20 +56,8 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
             ret['material'] = getattr(material, 'internal_code', None)
         return ret
 
-    def get_created_by(self, obj):
-        first_history = obj.history.order_by('history_date').first()
-        if first_history and hasattr(first_history, 'history_user') and first_history.history_user:
-            return str(first_history.history_user)
-        return None
 
-    def get_created_at(self, obj):
-        first_history = obj.history.order_by('history_date').first()
-        if first_history:
-            return first_history.history_date
-        return None
-    
     def validate(self, attrs):
-        # Use self.partial to determine if this is a partial update
         uom = attrs.get('uom')
         quantity = attrs.get('quantity')
         if getattr(self, 'partial', False):
@@ -79,30 +73,33 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
                     'quantity': _('Miktar, Palet, Koli veya Adet birimleri için tam sayı olmalıdır.')
                 })
         return attrs
-        
+    
     
     def create(self, validated_data):
-        po = validated_data.get('po')
+        so = validated_data.get('so')
         material = validated_data.get('material')
-        if po:
-            if po.status != 'draft':
+        if so:
+            if so.status != 'draft':
                 raise serializers.ValidationError({
-                    'po': 'Sadece taslak (draft) durumundaki PO için satır eklenebilir.'
+                    'po': 'Sadece taslak (draft) durumundaki SO için satır eklenebilir.'
                 })
-        if po and material:
-            exists = ProcurementOrderLine.objects.filter(po=po, material=material).exists()
+        if so and material:
+            exists = SalesOrderLine.objects.filter(po=so, material=material).exists()
             if exists:
                 raise serializers.ValidationError({
-                    'material': 'Bu malzeme bu PO da zaten mevcut!.'
+                    'material': 'Bu malzeme bu SO da zaten mevcut!.'
                 })
-        return ProcurementOrderLine.objects.create(**validated_data)
+        return SalesOrderLine.objects.create(**validated_data)
+    
     
     def update(self, instance, validated_data):
-        parent_status = instance.po.status if instance.po else None
+        parent_status = instance.so.status if hasattr(instance, 'so') and instance.so else None
+        
         if parent_status:
+            
             if parent_status == 'draft':
+
                 allowed_fields = ['tax_rate', 'quantity', 'uom', 'unit_price']
-                
                 disallowed = []
                 for field in validated_data:
                     if field not in allowed_fields:
@@ -110,13 +107,15 @@ class ProcurementOrderLineSerializer(serializers.ModelSerializer):
                         
                 if disallowed:
                     raise serializers.ValidationError({
-                        'fields': f"Taslak (draft) PO'da sadece quantity_received, tax_rate, quantity, uom ve unit_price güncellenebilir."
+                        'fields': f"Taslak (draft) SO'da sadece tax_rate, quantity, uom ve unit_price güncellenebilir."
                     })
             else:
                 raise serializers.ValidationError({
-                    'fields': f"PO durumu '{parent_status}' olduğunda bir şey güncellenemez."
+                    'fields': f"SO durumu '{parent_status}' olduğunda bir şey güncellenemez."
                 })
+                
         for field in validated_data:
             setattr(instance, field, validated_data[field])
+            
         instance.save()
         return instance

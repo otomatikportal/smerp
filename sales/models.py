@@ -139,7 +139,6 @@ class SalesOrder(SafeDeleteModel):
         ('draft', 'Taslak'),
         ('submitted', 'Sunuldu'),
         ('approved', 'Onaylandı'),
-        ('dispatch_ordered', 'Sevk Emri Verildi'),
         ('billed', 'Faturalandı'),
         ('paid', 'Ödendi'),
         ('cancelled', 'İptal edildi')
@@ -322,8 +321,11 @@ class SalesOrder(SafeDeleteModel):
         return transitions.get(self.status, [])
     
     
+class SalesOrderLine(SafeDeleteModel):
+    
     _safedelete_policy = SOFT_DELETE
     so = models.ForeignKey("sales.SalesOrder", related_name='lines', verbose_name=_("Satış Emri"), on_delete=models.CASCADE, null=False, blank=False)
+    line_number = models.IntegerField(_("#"))
     material = models.ForeignKey("core.Material", on_delete=models.PROTECT, null=False, blank=False, verbose_name=_('Malzeme'))
     quantity = models.DecimalField(_('Miktar'), max_digits=21, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(Decimal('0.00'))])
     uom = UOMField(null=False, blank=False)
@@ -352,6 +354,14 @@ class SalesOrder(SafeDeleteModel):
         
         if errors:
             raise ValidationError(errors)
+            
+    def save(self, *args, **kwargs):
+        if not self.line_number:
+            last_line = SalesOrderLine.objects.filter(so=self.so).aggregate(
+                models.Max('line_number')
+            )['line_number__max']
+            self.line_number = (last_line or 0) + 1
+        super().save(*args, **kwargs)
 
     @property
     def quantity_left(self):
@@ -369,8 +379,6 @@ class SalesOrder(SafeDeleteModel):
         if self.unit_price is None or self.quantity is None or self.tax_rate is None:
             return None
         return (self.unit_price * self.quantity) * (1 + self.tax_rate)
-    
-    
     
     
     
