@@ -4,14 +4,10 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from core.models import Material
 from core.serializers.material_serializers import MaterialSerializer
-from rest_framework.views import exception_handler
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions
 from safedelete.config import HARD_DELETE
-from datetime import datetime
 from simple_history.utils import bulk_create_with_history
-from django.db import models
-from simple_history.models import HistoricalRecords
 
 class CustomPagination(pagination.PageNumberPagination):
     page_size = 10

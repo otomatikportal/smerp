@@ -4,10 +4,10 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from core.models import Company
 from core.serializers.company_serializers import CompanySerializer
-from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
 from safedelete.config import HARD_DELETE
+from simple_history.utils import bulk_create_with_history
 
 
 class CustomPagination(pagination.PageNumberPagination):
@@ -60,14 +60,55 @@ class CompanyViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        response.data = {
-            "status": "success",
-            "message": "Company created successfully",
-            "result": response.data
-        }
-        response.status_code = status.HTTP_201_CREATED
-        return response
+        
+        if isinstance(request.data, list):
+            
+            validated_companies = []
+            errors = []
+            
+            for i, company_data in enumerate(request.data):
+                serializer = self.get_serializer(data=company_data)
+                if serializer.is_valid():
+                    validated_companies.append(serializer.validated_data)
+                else:
+                    errors.append({
+                        "index": i,
+                        "data": company_data,
+                        "errors": serializer.errors
+                    })
+            
+            if errors:
+                return Response({
+                    "status": "validation_error",
+                    "message": f"Validation failed for {len(errors)} companies",
+                    "errors": errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            company_objects = [Company(**data) for data in validated_companies]
+            created_companies = bulk_create_with_history(
+                company_objects,
+                Company,
+                default_user=request.user if request.user.is_authenticated else None
+            )
+                       
+            response_data = CompanySerializer(created_companies, many=True).data
+            
+            return Response({
+                "status": "success",
+                "message": f"Successfully created {len(created_companies)} companies",
+                "results": response_data
+            }, status=status.HTTP_201_CREATED)
+        
+        else:        
+            
+            response = super().create(request, *args, **kwargs)
+            response.data = {
+                "status": "success",
+                "message": "Company created successfully",
+                "result": response.data
+            }
+            response.status_code = status.HTTP_201_CREATED
+            return response
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):

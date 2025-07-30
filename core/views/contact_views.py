@@ -62,12 +62,51 @@ class ContactViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        return Response({
-            "status": "success",
-            "message": "Contact created successfully",
-            "result": response.data
-        }, status=status.HTTP_201_CREATED)
+        from simple_history.utils import bulk_create_with_history
+        if isinstance(request.data, list):
+            validated_contacts = []
+            errors = []
+
+            for i, contact_data in enumerate(request.data):
+                serializer = self.get_serializer(data=contact_data)
+                if serializer.is_valid():
+                    validated_contacts.append(serializer.validated_data)
+                else:
+                    errors.append({
+                        "index": i,
+                        "data": contact_data,
+                        "errors": serializer.errors
+                    })
+
+            if errors:
+                return Response({
+                    "status": "validation_error",
+                    "message": f"Validation failed for {len(errors)} contacts",
+                    "errors": errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            contact_objects = [Contact(**data) for data in validated_contacts]
+            created_contacts = bulk_create_with_history(
+                contact_objects,
+                Contact,
+                default_user=request.user if request.user.is_authenticated else None
+            )
+            response_data = ContactSerializer(created_contacts, many=True).data
+
+            return Response({
+                "status": "success",
+                "message": f"Successfully created {len(created_contacts)} contacts",
+                "results": response_data
+            }, status=status.HTTP_201_CREATED)
+        else:
+            response = super().create(request, *args, **kwargs)
+            response.data = {
+                "status": "success",
+                "message": "Contact created successfully",
+                "result": response.data
+            }
+            response.status_code = status.HTTP_201_CREATED
+            return response
 
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
