@@ -9,7 +9,7 @@ class InventoryConfig(AppConfig):
         from django.db.models.signals import post_migrate
         from django.contrib.auth.models import Group, Permission
         from django.contrib.contenttypes.models import ContentType
-        from inventory.models import InventoryLocation, StockRecord
+        from inventory.models import InventoryLocation #, StockRecord
 
         def create_default_groups(sender, **kwargs):
             base_perms_inventory_location = [
@@ -25,8 +25,8 @@ class InventoryConfig(AppConfig):
             groups_permissions = {
                 'Inventory Location Manager': (base_perms_inventory_location, InventoryLocation),
                 'Inventory Location Observer': (['view_inventorylocation'], InventoryLocation),
-                'Stock Record Manager': (base_perms_stock_record, StockRecord),
-                'Stock Record Observer': (['view_stockrecord'], StockRecord),
+                #'Stock Record Manager': (base_perms_stock_record, StockRecord),
+                #'Stock Record Observer': (['view_stockrecord'], StockRecord),
             }
             for group_name, (perms, model) in groups_permissions.items():
                 ct = ContentType.objects.get_for_model(model)

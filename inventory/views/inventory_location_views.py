@@ -9,7 +9,7 @@ from inventory.models import InventoryLocation
 from inventory.serializers.inventory_location_serializers import InventoryLocationSerializer
 from safedelete.config import HARD_DELETE
 from django.utils.translation import gettext_lazy as _
-
+from simple_history.utils import bulk_create_with_history
 
 class CustomDjangoModelPermissions(DjangoModelPermissions):
     perms_map = {
@@ -79,36 +79,115 @@ class InventoryLocationViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # Extract relevant fields from request data
         data = request.data
-        unique_fields = ['facility', 'area', 'section', 'shelf', 'bin', 'type', 'name']
-        filter_kwargs = {field: data.get(field) for field in unique_fields if data.get(field) is not None}
+        is_many = isinstance(data, list)
+        data_list = data if is_many else [data]
+        unique_fields = ['facility', 'area', 'section', 'shelf', 'bin']
 
-        # Find a soft-deleted instance using safedelete's deleted field
-        existing = InventoryLocation.all_objects.filter(**filter_kwargs).filter(deleted__isnull=False).first()
-        if existing:
-            existing.undelete()
-            # Apply partial update with request data
-            serializer = self.get_serializer(existing, data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response({
-                "status": "success",
-                "message": "Inventory location recovered and updated successfully",
-                "result": serializer.data
-            }, status=status.HTTP_200_OK)
+        to_bulk_create = []
+        created_count = 0
+        recovered_count = 0
+        skipped_count = 0
+        error_count = 0
 
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        instance._change_reason = "Created via API"
-        instance.save()
-        
+        for item in data_list:
+            # Build filter kwargs
+            filter_kwargs = {field: item.get(field) for field in unique_fields}
+            if any(v is None for v in filter_kwargs.values()):
+                error_count += 1
+                continue
+
+            existing = InventoryLocation.all_objects.filter(**filter_kwargs).first()
+
+            if existing and not existing.deleted:
+                # Active → skip
+                skipped_count += 1
+            elif existing and existing.deleted:
+                # Soft-deleted → recover
+                existing.undelete()
+                for key, val in item.items():
+                    if hasattr(existing, key):
+                        setattr(existing, key, val)
+                if not existing.name:
+                    existing.name = InventoryLocation.generate_name(
+                        facility=existing.facility,
+                        area=existing.area,
+                        section=existing.section,
+                        shelf=existing.shelf,
+                        bin=existing.bin
+                    )
+                existing._change_reason = "Recovered and updated via bulk API"
+                existing.save()
+                recovered_count += 1
+            else:
+                # New object
+                serializer = self.get_serializer(data=item)
+                try:
+                    serializer.is_valid(raise_exception=True)
+                    validated_data = serializer.validated_data
+
+                    if not validated_data.get('name'):
+                        validated_data['name'] = InventoryLocation.generate_name(
+                            facility=validated_data.get('facility'),
+                            area=validated_data.get('area'),
+                            section=validated_data.get('section'),
+                            shelf=validated_data.get('shelf'),
+                            bin=validated_data.get('bin')
+                        )
+
+                    obj = InventoryLocation(**validated_data)
+                    obj._change_reason = "Created via bulk API"
+                    to_bulk_create.append(obj)
+                    created_count += 1
+                except Exception:
+                    error_count += 1
+
+        # Bulk create new objects
+        if to_bulk_create:
+            bulk_create_with_history(
+                to_bulk_create,
+                InventoryLocation,
+                batch_size=100,
+                default_user=request.user,
+                default_change_reason="Created via bulk API"
+            )
+
+        # === Final Response Logic ===
+        total_processed = len(data_list)
+        any_success = created_count > 0 or recovered_count > 0 or skipped_count > 0
+        has_errors = error_count > 0
+        has_creations = created_count > 0
+
+        if has_errors and not any_success:
+            status_code = status.HTTP_400_BAD_REQUEST
+            response_status = "error"
+            message = _("Hiçbir envanter konumu oluşturulamadı. Girdi verilerinde hatalar var.")
+        else:
+            parts = []
+            if created_count:
+                parts.append(_("%(count)d tane oluşturuldu") % {'count': created_count})
+            if recovered_count:
+                parts.append(_("%(count)d tane kurtarıldı") % {'count': recovered_count})
+            if skipped_count:
+                parts.append(_("%(count)d tane zaten var, atlandı") % {'count': skipped_count})
+            if error_count:
+                parts.append(_("%(count)d tane hatalı veri" ) % {'count': error_count})
+
+            message = _("; ".join(parts)) + "."
+            response_status = "success"
+            status_code = status.HTTP_201_CREATED if created_count > 0 else status.HTTP_200_OK
+
         return Response({
-            "status": "success",
-            "message": "Inventory location created successfully",
-            "result": serializer.data
-        }, status=status.HTTP_201_CREATED)
+            "status": response_status,
+            "message": message,
+            "summary": {
+                "total": total_processed,
+                "created": created_count,
+                "recovered": recovered_count,
+                "skipped": skipped_count,
+                "errors": error_count,
+            }
+        }, status=status_code)
 
 
     @transaction.atomic

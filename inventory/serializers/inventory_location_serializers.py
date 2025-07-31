@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from inventory.models import InventoryLocation
-from inventory.serializers.stock_record_serializers import StockRecordSerializer
 
 class InventoryLocationSerializer(serializers.ModelSerializer):
     created_at = serializers.SerializerMethodField(read_only=True)
@@ -37,18 +36,6 @@ class InventoryLocationSerializer(serializers.ModelSerializer):
             if first_history:
                 return first_history.history_date
         return None
-    
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        action = self.context.get('action')
-        if action == 'retrieve':
-            stock_records = instance.stockrecord_set.all()
-            items_context = self.context.copy()
-            items_context['action'] = 'list'
-            ret['items'] = StockRecordSerializer(stock_records, many=True, context=items_context).data
-        elif action == 'list':
-            pass
-        return ret
 
     def update(self, instance, validated_data):
         # Only allow updating name, facility, area, section, shelf, bin, type
