@@ -297,8 +297,6 @@ class SalesOrder(SafeDeleteModel):
         if errors:
             raise ValidationError(errors)
 
-
-        # Handle special cases
         if new_status == 'billed':
             if 'invoice_date' in kwargs:
                 self.invoice_date = kwargs['invoice_date']

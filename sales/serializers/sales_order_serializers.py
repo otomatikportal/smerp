@@ -74,13 +74,9 @@ class SalesOrderSerializer(serializers.ModelSerializer):
     
 
     def create(self, validated_data):
-        # ✅ Extract lines before creating the main object
         lines_data = validated_data.pop('lines', None)
-
-        # ✅ Create the SalesOrder first
         sales_order = SalesOrder.objects.create(**validated_data)
 
-        # ✅ Create lines only if data was provided
         if lines_data:
             for line_data in lines_data:
                 line_data['so'] = sales_order
@@ -89,20 +85,18 @@ class SalesOrderSerializer(serializers.ModelSerializer):
         return sales_order
 
     def update(self, instance, validated_data):
-        # ❌ Prevent updates if not in 'draft' status
+        
         if instance.status != 'draft':
             raise serializers.ValidationError({
                 'status': f"SO cannot be updated because its status is '{instance.status}'. Only 'draft' SOs can be edited."
             })
-
-        # ✅ Only allow specific fields to be updated
+            
         allowed_fields = [
             'customer', 'payment_term', 'payment_method', 'incoterms', 'trade_discount',
             'due_in_days', 'due_discount_days', 'invoice_date', 'invoice_number',
             'description', 'currency', 'delivery_address'
         ]
 
-        # Check for disallowed fields
         disallowed = [field for field in validated_data if field not in allowed_fields]
         if disallowed:
             raise serializers.ValidationError({
@@ -110,7 +104,6 @@ class SalesOrderSerializer(serializers.ModelSerializer):
                           f"You tried to update: {', '.join(disallowed)}"
             })
 
-        # ✅ Update allowed fields
         for field, value in validated_data.items():
             setattr(instance, field, value)
         instance.save()
@@ -123,7 +116,6 @@ class SalesOrderSerializer(serializers.ModelSerializer):
         action = getattr(view, 'action', None)
 
         if action == 'retrieve':
-            # ✅ Detail view: include full lines
             child_context = {**self.context, 'action': 'list'}
             ret['lines'] = SalesOrderLineSerializer(
                 instance.lines.all(),
@@ -132,7 +124,6 @@ class SalesOrderSerializer(serializers.ModelSerializer):
             ).data
 
         elif action == 'list':
-            # ✅ List view: only show count, hide full lines
             ret['count_of_lines'] = self.get_count_of_lines(instance)
             ret.pop('lines', None)  # Remove lines list
 

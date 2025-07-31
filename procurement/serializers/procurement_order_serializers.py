@@ -26,6 +26,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
             'due_discount_days',
             'invoice_accepted',
             'invoice_date',
+            'invoice_number',
             'last_payment_date',
             'description',
             'status',
@@ -37,7 +38,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
             'total_price_with_tax',
             'all_received',
             'lines',
-            'vendor',
+            'vendor'
         ]
         read_only_fields = [
             'created_by', 
@@ -48,6 +49,7 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
             'last_payment_date', 
             'invoice_accepted',
             'po_number',
+            'status'
         ]
         
     def get_lines(self, obj):
@@ -83,20 +85,6 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
                 line_data['po'] = order
                 ProcurementOrderLineSerializer().create(line_data)
         return order
-
-    def validate_payment_term(self, value):
-        """Validate payment term field"""
-        return value
-    
-    def validate_due_discount(self, value):
-        """Validate due_discount based on payment_term"""
-        # This will be cross-validated in validate() method
-        return value
-    
-    def validate_due_discount_days(self, value):
-        """Validate due_discount_days based on payment_term"""
-        # This will be cross-validated in validate() method
-        return value
     
     def validate(self, attrs):
         """Cross-field validation for payment terms"""
@@ -142,12 +130,12 @@ class ProcurementOrderSerializer(serializers.ModelSerializer):
         # Handle special cases for non-draft statuses
         if instance.status in ['ordered', 'approved']:
             # Only allow invoice_date updates for ordered/approved orders
-            allowed_fields = ['invoice_date']
+            allowed_fields = ['invoice_date', 'invoice_number']
             non_allowed_updates = [field for field in validated_data.keys() if field not in allowed_fields]
             if non_allowed_updates:
                 status_display = dict(instance.STATUS).get(instance.status, instance.status)
                 raise serializers.ValidationError({
-                    'fields': _('%(status)s durumundaki siparişlerde sadece fatura tarihi güncellenebilir. Diğer işlemler için durum değiştirme endpoint\'lerini kullanın.') % {'status': status_display}
+                    'non_field_errors': _('%(status)s durumundaki siparişlerde sadece fatura tarihi güncellenebilir. Diğer işlemler için durum değiştirme endpoint\'lerini kullanın.') % {'status': status_display}
                 })
             
             # Simple update for allowed fields

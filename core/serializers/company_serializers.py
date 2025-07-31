@@ -42,10 +42,7 @@ class CompanySerializer(serializers.ModelSerializer):
         if view is not None:
             action = getattr(view, 'action', None)
         else:
-            action = None
-
-        print(action)
-        
+            action = None        
         if action == 'retrieve':
             ret['contacts'] = ContactSerializer(instance.contacts.all(), many=True).data
             

@@ -105,6 +105,7 @@ class ProcurementOrder(SafeDeleteModel):
     due_discount = models.DecimalField(_('Vade İskontosu'), max_digits=4, decimal_places=3, default=Decimal("0.000"), validators=[MinValueValidator(0), MaxValueValidator(1)])
     due_discount_days = models.DurationField(_('Vade İskonto Günü'), null=True, blank=False)
     invoice_date =  models.DateField(_('Fatura Tebliğ Tarihi'), null=True, blank=False)
+    invoice_number = models.CharField(_("Fatura #no"), max_length=50, blank=False, null=True)
     description = models.TextField(_('Açıklama'), max_length=500)
     status = models.CharField(_('Durum'), max_length=20, choices=STATUS, default="draft") 
     currency = CurrencyField(null=False, blank=False)
