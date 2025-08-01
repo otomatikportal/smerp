@@ -210,12 +210,6 @@ class InventoryLocationViewSet(viewsets.ModelViewSet):
                 "message": _("Envanter lokasyonu bulunamadı")
             }, status=status.HTTP_404_NOT_FOUND)
         
-        # Check if there are any StockRecord objects using this location
-        if hasattr(instance, 'stockrecord_set') and instance.stockrecord_set.exists():
-            return Response({
-                "status": "error",
-                "message": _("Bu lokasyonda stok kayıtları bulunduğu için silinemez. Önce stok kayıtlarını başka bir lokasyona taşıyın.")
-            }, status=status.HTTP_400_BAD_REQUEST)
         
         instance.delete()
         return Response({

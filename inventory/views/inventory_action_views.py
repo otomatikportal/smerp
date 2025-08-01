@@ -32,14 +32,13 @@ class EnterFromPOLineAPIView(APIView):
         data['created_by'] = request.user.pk
         serializer = EnterFromPOLineSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        movement = StockMovement.enter_from_po_line(
+        StockMovement.enter_from_po_line(
             po_line=po_line,
             **serializer.validated_data  # type: ignore
         )
         return Response({
             "status": "success",
             "message": _("Stok girişi başarıyla kaydedildi. Kalan gelecek: %(qty)s") % {"qty": po_line.quantity_left},
-            "result": {"id": movement.id}
         }, status=status.HTTP_201_CREATED)
 
 
@@ -58,15 +57,14 @@ class ExitFromSOLineAPIView(APIView):
         data['created_by'] = request.user.pk
         serializer = ExitFromSOLineSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        movement = StockMovement.exit_from_so_line(
+        StockMovement.exit_from_so_line(
             reason = "Satış çıkışı",
             so_line=so_line,
             **serializer.validated_data #type: ignore
         )
         return Response({
             "status": "success",
-            "message": _("Stok çıkışı başarıyla kaydedildi. Kalan çıkacak: %(qty)s") % {"qty": so_line.quantity_left},
-            "result": {"id": movement.id}
+            "message": _("Stok çıkışı başarıyla kaydedildi. Kalan çıkacak: %(qty)s") % {"qty": so_line.quantity_left}
         }, status=status.HTTP_201_CREATED)
 
 
@@ -77,15 +75,15 @@ class AdjustmentAPIView(APIView):
     def post(self, request):
         data = request.data.copy()
         data['created_by'] = request.user.pk
-        serializer = AdjustmentSerializer(data=request.data)
+        serializer = AdjustmentSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        movement = StockMovement.adjustment(
+        print(serializer.validated_data)
+        StockMovement.adjustment(
             **serializer.validated_data #type: ignore
         )
         return Response({
             "status": "success",
-            "message": _("Stok düzeltme işlemi başarıyla kaydedildi."),
-            "result": {"id": movement.id}
+            "message": _("Stok düzeltme işlemi başarıyla kaydedildi.")
         }, status=status.HTTP_201_CREATED)
 
 
@@ -96,13 +94,12 @@ class TransferAPIView(APIView):
     def post(self, request):
         data = request.data.copy()
         data['created_by'] = request.user.pk
-        serializer = TransferSerializer(data=request.data)
+        serializer = TransferSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        movement = StockMovement.transfer(
+        StockMovement.transfer(
             **serializer.validated_data #type: ignore
         )
         return Response({
             "status": "success",
             "message": _("Stok transferi başarıyla kaydedildi."),
-            "result": {"id": movement.id}
         }, status=status.HTTP_201_CREATED)

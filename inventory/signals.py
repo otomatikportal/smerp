@@ -5,12 +5,10 @@ from inventory.models import StockMovement, InventoryBalance
 
 @receiver(post_save, sender=StockMovement)
 def update_inventory_balance_on_save(sender, instance, created, **kwargs):
-    balance_object, balance_created = InventoryBalance.objects.get_or_create(
+    balance_object, _ = InventoryBalance.objects.get_or_create(
         material=instance.material,
         uom=instance.uom,
-        defaults={'quantity': instance.quantity}
+        defaults={'quantity': 0}
     )
-    
-    if balance_created:
-        balance_object.quantity += instance.quantity
-        balance_object.save()
+    balance_object.quantity += instance.quantity
+    balance_object.save()

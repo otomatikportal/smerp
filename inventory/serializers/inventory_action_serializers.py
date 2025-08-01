@@ -11,14 +11,14 @@ class EnterFromPOLineSerializer(serializers.Serializer):
     location = serializers.PrimaryKeyRelatedField(queryset=InventoryLocation.objects.all(), required=True)
     quantity = serializers.DecimalField(max_digits=30, decimal_places=2, required=True)
     reason = serializers.CharField(required=False)
-    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=True)
+    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
 
 
 class ExitFromSOLineSerializer(serializers.Serializer):
     location = serializers.PrimaryKeyRelatedField(queryset=InventoryLocation.objects.all(), required=True)
     quantity = serializers.DecimalField(max_digits=30, decimal_places=2, required=True)
     reason = serializers.CharField(required=False)
-    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=True)
+    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
 
 
 class AdjustmentSerializer(serializers.Serializer):
@@ -27,7 +27,7 @@ class AdjustmentSerializer(serializers.Serializer):
     uom = serializers.ChoiceField(choices=UOMField.Unit.choices, required=True)
     new_quantity = serializers.DecimalField(max_digits=30, decimal_places=2, required=True)
     reason = serializers.CharField(required=False)
-    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=True)
+    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
 
     def validate(self, attrs):
         uom = attrs.get('uom')
@@ -46,7 +46,7 @@ class TransferSerializer(serializers.Serializer):
     quantity = serializers.DecimalField(max_digits=30, decimal_places=2, required=True)
     uom = serializers.ChoiceField(choices=UOMField.Unit.choices, required=True)
     reason = serializers.CharField(required=False)
-    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=True)
+    created_by = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
 
     def validate(self, attrs):
         uom = attrs.get('uom')

@@ -166,6 +166,7 @@ class StockMovement(models.Model):
         weighted_avg_cost = (total_cost / positive_qty) if positive_qty else 0
         available_qty = records.aggregate(total=models.Sum('quantity'))['total'] or 0
         shared_fields = {
+            "material": material,
             "uom": uom,
             "location": location,
             "unit_cost": weighted_avg_cost,
