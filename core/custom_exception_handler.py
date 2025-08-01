@@ -2,7 +2,6 @@ import logging
 import traceback
 from collections import OrderedDict
 from rest_framework.views import exception_handler
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from django.conf import settings
 

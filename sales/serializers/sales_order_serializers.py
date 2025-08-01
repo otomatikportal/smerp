@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from sales.models import SalesOrder, SalesOrderLine
+from sales.models import SalesOrder
 from sales.serializers.sales_order_line_serializers import SalesOrderLineSerializer
-from core.serializers.material_serializers import MaterialSerializer
 
 
 class SalesOrderSerializer(serializers.ModelSerializer):

@@ -2,10 +2,9 @@ from rest_framework import viewsets, status, filters, pagination
 from django.db import transaction
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.views import exception_handler
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
-from inventory.models import InventoryLocation
+from inventory.models.inventory_location import InventoryLocation
 from inventory.serializers.inventory_location_serializers import InventoryLocationSerializer
 from safedelete.config import HARD_DELETE
 from django.utils.translation import gettext_lazy as _

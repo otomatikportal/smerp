@@ -9,7 +9,6 @@ from rest_framework.decorators import action
 from safedelete.config import HARD_DELETE
 from simple_history.utils import bulk_create_with_history
 
-
 class CustomPagination(pagination.PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'

@@ -3,7 +3,6 @@ import logging
 from decimal import Decimal
 from datetime import date
 from celery import shared_task
-from django.db import transaction
 from finance.models import CurrencyExchangeRate
 
 logger = logging.getLogger(__name__)

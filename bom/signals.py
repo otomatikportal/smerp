@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.apps import apps
-from .models import Bom, BomLine
+from bom.models import Bom, BomLine
 
 
 def create_variable_cost_for_bom_instance(bom_instance):
