@@ -135,9 +135,9 @@ class StockMovement(SafeDeleteModel):
         cls,
         po_line: ProcurementOrderLine,
         target_location: InventoryLocation,
-        created_by: User,
         quantity: decimal.Decimal,
-        reason: str
+        reason: str,
+        created_by: User,
     ):
         if quantity <= 0:
             raise ValidationError(_("Girişlerde miktar pozitif olmalıdır."))
@@ -158,7 +158,8 @@ class StockMovement(SafeDeleteModel):
         cls,
         so_line: SalesOrderLine,
         quantity: decimal.Decimal,
-        location: InventoryLocation,  
+        location: InventoryLocation,
+        created_by: User  
     ):
     
         if quantity <= 0:
@@ -176,7 +177,6 @@ class StockMovement(SafeDeleteModel):
         if quantity > available_qty:
             raise ValidationError(_('Bu depolama bölgesinde bu miktarda malzeme yok'))
 
-        # Weighted average unit_cost calculation
         total_cost = sum(float(rec.unit_cost) * float(rec.quantity) for rec in deductible_records)
         weighted_avg_cost = (total_cost / available_qty)
         
@@ -187,7 +187,8 @@ class StockMovement(SafeDeleteModel):
             location=location,
             so_line=so_line,
             action=cls.Action.OUT,
-            unit_cost=weighted_avg_cost
+            unit_cost=weighted_avg_cost,
+            created_by=created_by 
         )
         
         

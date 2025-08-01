@@ -261,4 +261,3 @@ class InventoryLocationViewSet(viewsets.ModelViewSet):
             "status": "success",
             "message": "Inventory location hard deleted successfully"
         }, status=status.HTTP_200_OK)
-
