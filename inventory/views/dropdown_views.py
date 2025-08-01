@@ -1,6 +1,6 @@
 from rest_framework.generics import ListAPIView
 from inventory.models import InventoryLocation
-from inventory.serializers.dropdown_serializers import InventoryLocationDropdownSerializer
+from inventory.serializers import InventoryLocationDropdownSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter

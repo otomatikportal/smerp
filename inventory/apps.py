@@ -17,16 +17,9 @@ class InventoryConfig(AppConfig):
                 'change_inventorylocation',
                 'view_inventorylocation',
             ]
-            base_perms_stock_record = [
-                'add_stockrecord',
-                'change_stockrecord',
-                'view_stockrecord',
-            ]
             groups_permissions = {
                 'Inventory Location Manager': (base_perms_inventory_location, InventoryLocation),
                 'Inventory Location Observer': (['view_inventorylocation'], InventoryLocation),
-                #'Stock Record Manager': (base_perms_stock_record, StockRecord),
-                #'Stock Record Observer': (['view_stockrecord'], StockRecord),
             }
             for group_name, (perms, model) in groups_permissions.items():
                 ct = ContentType.objects.get_for_model(model)
@@ -38,3 +31,4 @@ class InventoryConfig(AppConfig):
             # Groups are additive: if a group exists, permissions are added, not overwritten
 
         post_migrate.connect(create_default_groups, sender=self)
+        import inventory.signals

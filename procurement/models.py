@@ -101,7 +101,7 @@ class ProcurementOrder(SafeDeleteModel):
     payment_method = models.CharField(_('Ödeme Yöntemi'), max_length=20, choices=PAYMENT_METHODS)
     incoterms = models.CharField(_('Teslim Şekli (Incoterms)'), max_length=20, choices=INCOTERMS)
     trade_discount = models.DecimalField(_('Ticari İskonto'), max_digits=4, decimal_places=3, default=Decimal("0.000"), validators=[MinValueValidator(0), MaxValueValidator(1)])
-    due_in_days = models.DurationField(_('Vade Günü'))
+    due_in_days = models.DurationField(_('Vade Günü'), default=timedelta(0))
     due_discount = models.DecimalField(_('Vade İskontosu'), max_digits=4, decimal_places=3, default=Decimal("0.000"), validators=[MinValueValidator(0), MaxValueValidator(1)])
     due_discount_days = models.DurationField(_('Vade İskonto Günü'), null=True, blank=False)
     invoice_date =  models.DateField(_('Fatura Tebliğ Tarihi'), null=True, blank=False)

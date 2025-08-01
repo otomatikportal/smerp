@@ -19,6 +19,7 @@ class Bom(SafeDeleteModel):
     
     class Meta:
         unique_together = ['product', 'uom']
+        
     
     @property
     def latest_cost(self):

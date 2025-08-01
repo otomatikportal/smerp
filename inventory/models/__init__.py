@@ -1,2 +1,2 @@
 from .inventory_location import InventoryLocation
-from .stock_movement import StockMovement
+from .stock_movement import StockMovement, InventoryBalance

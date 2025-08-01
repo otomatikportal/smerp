@@ -128,7 +128,7 @@ class SalesOrder(SafeDeleteModel):
         return subtotal_after_discount + tax_total
 
     @property
-    def all_received(self):
+    def all_sent(self):
         return all(line.quantity_left <= 0 for line in self.lines.all()) # type: ignore
     
     @property
